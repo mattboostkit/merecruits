@@ -41,4 +41,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Prisma (legacy - no longer used, migrated to Convex)
+/prisma/
 /src/generated/prisma
+/src/lib/prisma.ts

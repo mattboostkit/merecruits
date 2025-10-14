@@ -1,33 +1,16 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Briefcase, Users, TrendingUp, Award, MapPin, Clock, Calendar } from "lucide-react"
-import { prisma } from "@/lib/prisma"
+import { useQuery } from "convex/react"
+import { api } from "convex/_generated/api"
 
-export default async function HomePage() {
-  // Fetch featured jobs
-  const featuredJobs = await prisma.job.findMany({
-    where: {
-      status: "ACTIVE",
-      featured: true,
-    },
-    take: 6,
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
-
-  // Fetch latest news
-  const latestNews = await prisma.newsArticle.findMany({
-    where: {
-      published: true,
-    },
-    take: 4,
-    orderBy: {
-      publishedAt: "desc",
-    },
-  })
+export default function HomePage() {
+  const featuredJobs = useQuery(api.jobs.getFeatured)
+  const latestNews = useQuery(api.news.list)
 
   return (
     <div className="flex flex-col">
@@ -137,10 +120,14 @@ export default async function HomePage() {
             </Button>
           </div>
 
-          {featuredJobs.length > 0 ? (
+          {featuredJobs === undefined ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading jobs...</p>
+            </div>
+          ) : featuredJobs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredJobs.map((job) => (
-                <Card key={job.id} className="hover:shadow-lg transition-shadow">
+                <Card key={job._id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
                       <Badge variant={job.type === "PERMANENT" ? "default" : "secondary"}>
@@ -288,7 +275,7 @@ export default async function HomePage() {
       </section>
 
       {/* Latest News */}
-      {latestNews.length > 0 && (
+      {latestNews && latestNews.length > 0 && (
         <section className="py-20 bg-slate-50">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
@@ -307,8 +294,8 @@ export default async function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {latestNews.map((article) => (
-                <Card key={article.id} className="hover:shadow-lg transition-shadow">
+              {latestNews.slice(0, 4).map((article) => (
+                <Card key={article._id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                       <Calendar className="h-4 w-4" />

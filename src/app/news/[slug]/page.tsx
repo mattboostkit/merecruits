@@ -1,12 +1,15 @@
-import { Metadata } from "next"
+"use client"
+
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Calendar, Clock, Share2, ArrowRight } from "lucide-react"
-import { prisma } from "@/lib/prisma"
 import { format } from "date-fns"
+import { useQuery } from "convex/react"
+import { api } from "convex/_generated/api"
+import { use } from "react"
 
 interface NewsArticlePageProps {
   params: Promise<{
@@ -14,54 +17,25 @@ interface NewsArticlePageProps {
   }>
 }
 
-export async function generateMetadata({ params }: NewsArticlePageProps): Promise<Metadata> {
-  const { slug } = await params
-  const article = await prisma.newsArticle.findUnique({
-    where: { slug },
-  })
+export default function NewsArticlePage({ params }: NewsArticlePageProps) {
+  const { slug } = use(params)
+  const article = useQuery(api.news.getBySlug, { slug })
+  const relatedArticles = useQuery(
+    api.news.getRelated,
+    article ? { excludeId: article._id, limit: 3 } : "skip"
+  )
 
-  if (!article) {
-    return {
-      title: "Article Not Found",
-    }
+  if (article === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">Loading article...</p>
+      </div>
+    )
   }
-
-  return {
-    title: article.title,
-    description: article.excerpt,
-    openGraph: {
-      title: article.title,
-      description: article.excerpt,
-      type: "article",
-      publishedTime: article.publishedAt?.toISOString() || new Date().toISOString(),
-      authors: [article.author],
-    },
-  }
-}
-
-export default async function NewsArticlePage({ params }: NewsArticlePageProps) {
-  const { slug } = await params
-  const article = await prisma.newsArticle.findUnique({
-    where: { slug },
-  })
 
   if (!article || !article.published) {
     notFound()
   }
-
-  // Get related articles
-  const relatedArticles = await prisma.newsArticle.findMany({
-    where: {
-      published: true,
-      id: {
-        not: article.id,
-      },
-    },
-    take: 3,
-    orderBy: {
-      publishedAt: "desc",
-    },
-  })
 
   return (
     <div className="flex flex-col">
@@ -165,14 +139,14 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
       </section>
 
       {/* Related Articles */}
-      {relatedArticles.length > 0 && (
+      {relatedArticles && relatedArticles.length > 0 && (
         <section className="py-20 bg-slate-50">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               <h2 className="text-3xl font-bold mb-8">Related Articles</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {relatedArticles.map((relatedArticle) => (
-                  <Card key={relatedArticle.id} className="flex flex-col hover:shadow-lg transition-shadow">
+                  <Card key={relatedArticle._id} className="flex flex-col hover:shadow-lg transition-shadow">
                     <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 flex items-center justify-center">
                       <div className="w-full h-40 bg-primary/20 rounded-lg flex items-center justify-center">
                         <p className="text-muted-foreground text-sm">Article Image</p>

@@ -1,24 +1,14 @@
-import { Metadata } from "next"
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight, Mail, Linkedin } from "lucide-react"
-import { prisma } from "@/lib/prisma"
+import { useQuery } from "convex/react"
+import { api } from "convex/_generated/api"
 
-export const metadata: Metadata = {
-  title: "Meet The Team",
-  description: "Meet the experienced recruitment professionals at ME Recruits. Our team brings over 50 years of combined expertise in Kent recruitment.",
-}
-
-export default async function MeetTheTeamPage() {
-  const teamMembers = await prisma.teamMember.findMany({
-    where: {
-      active: true,
-    },
-    orderBy: {
-      order: "asc",
-    },
-  })
+export default function MeetTheTeamPage() {
+  const teamMembers = useQuery(api.team.list)
 
   return (
     <div className="flex flex-col">
@@ -57,44 +47,54 @@ export default async function MeetTheTeamPage() {
       <section className="py-20 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {teamMembers.map((member) => (
-                <Card key={member.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
-                  <div className="bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center p-8 h-64">
-                    <div className="w-40 h-40 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                      <span className="text-5xl font-bold text-primary">
-                        {member.name.split(" ").map(n => n[0]).join("")}
-                      </span>
+            {teamMembers === undefined ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Loading team members...</p>
+              </div>
+            ) : teamMembers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {teamMembers.map((member) => (
+                  <Card key={member._id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center p-8 h-64">
+                      <div className="w-40 h-40 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-5xl font-bold text-primary">
+                          {member.name.split(" ").map(n => n[0]).join("")}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <CardHeader className="flex-shrink-0">
-                    <CardTitle className="text-xl">{member.name}</CardTitle>
-                    <p className="text-primary font-semibold text-sm">{member.role}</p>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-6">
-                      {member.bio}
-                    </p>
-                  </CardContent>
-                  <CardContent className="pt-0 flex-shrink-0">
-                    <div className="flex gap-2 w-full">
-                      <Button asChild variant="outline" size="sm" className="flex-1">
-                        <a href={`mailto:${member.email}`}>
-                          <Mail className="h-4 w-4 mr-2" />
-                          Email
-                        </a>
-                      </Button>
-                      <Button asChild variant="ghost" size="sm" className="flex-1">
-                        <a href="#" className="text-muted-foreground">
-                          <Linkedin className="h-4 w-4 mr-2" />
-                          LinkedIn
-                        </a>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    <CardHeader className="flex-shrink-0">
+                      <CardTitle className="text-xl">{member.name}</CardTitle>
+                      <p className="text-primary font-semibold text-sm">{member.role}</p>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-6">
+                        {member.bio}
+                      </p>
+                    </CardContent>
+                    <CardContent className="pt-0 flex-shrink-0">
+                      <div className="flex gap-2 w-full">
+                        <Button asChild variant="outline" size="sm" className="flex-1">
+                          <a href={`mailto:${member.email}`}>
+                            <Mail className="h-4 w-4 mr-2" />
+                            Email
+                          </a>
+                        </Button>
+                        <Button asChild variant="ghost" size="sm" className="flex-1">
+                          <a href="#" className="text-muted-foreground">
+                            <Linkedin className="h-4 w-4 mr-2" />
+                            LinkedIn
+                          </a>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No team members found. Please contact us directly.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

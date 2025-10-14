@@ -1,4 +1,5 @@
-import { Metadata } from "next"
+"use client"
+
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -6,52 +7,38 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Briefcase, MapPin, Clock, Calendar, Share2, Upload } from "lucide-react"
-import { prisma } from "@/lib/prisma"
+import { useQuery } from "convex/react"
+import { api } from "convex/_generated/api"
+import { use } from "react"
 
 type Props = {
   params: Promise<{ slug: string }>
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const job = await prisma.job.findUnique({
-    where: { slug },
-  })
+export default function JobDetailPage({ params }: Props) {
+  const { slug } = use(params)
+  const job = useQuery(api.jobs.getBySlug, { slug })
+  const relatedJobs = useQuery(
+    api.jobs.list,
+    job ? { category: job.category } : "skip"
+  )
 
-  if (!job) {
-    return {
-      title: "Job Not Found",
-    }
+  if (job === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">Loading job details...</p>
+      </div>
+    )
   }
-
-  return {
-    title: job.title,
-    description: job.description.substring(0, 160),
-  }
-}
-
-export default async function JobDetailPage({ params }: Props) {
-  const { slug } = await params
-  const job = await prisma.job.findUnique({
-    where: { slug },
-  })
 
   if (!job) {
     notFound()
   }
 
-  // Get related jobs
-  const relatedJobs = await prisma.job.findMany({
-    where: {
-      status: "ACTIVE",
-      category: job.category,
-      id: { not: job.id },
-    },
-    take: 3,
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
+  // Filter related jobs (excluding current job, limit to 3)
+  const filteredRelatedJobs = relatedJobs
+    ?.filter((j) => j._id !== job._id)
+    .slice(0, 3) || []
 
   return (
     <div className="flex flex-col">
@@ -89,7 +76,7 @@ export default async function JobDetailPage({ params }: Props) {
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
                 <span>
-                  Posted {new Date(job.createdAt).toLocaleDateString("en-GB", {
+                  Posted {new Date(job._creationTime).toLocaleDateString("en-GB", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",
@@ -213,14 +200,14 @@ export default async function JobDetailPage({ params }: Props) {
       </section>
 
       {/* Related Jobs */}
-      {relatedJobs.length > 0 && (
+      {filteredRelatedJobs.length > 0 && (
         <section className="py-16 bg-slate-50">
           <div className="container mx-auto px-4">
             <div className="max-w-7xl mx-auto">
               <h2 className="text-3xl font-bold mb-8">Similar Opportunities</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedJobs.map((relatedJob) => (
-                  <Card key={relatedJob.id} className="hover:shadow-lg transition-shadow">
+                {filteredRelatedJobs.map((relatedJob) => (
+                  <Card key={relatedJob._id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
                       <div className="flex justify-between items-start mb-2">
                         <Badge variant={relatedJob.type === "PERMANENT" ? "default" : "secondary"}>

@@ -1,29 +1,19 @@
-import { Metadata } from "next"
+"use client"
+
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Calendar } from "lucide-react"
-import { prisma } from "@/lib/prisma"
 import { format } from "date-fns"
+import { useQuery } from "convex/react"
+import { api } from "convex/_generated/api"
 
-export const metadata: Metadata = {
-  title: "News & Insights",
-  description: "Stay updated with the latest recruitment news, career advice, and industry insights from ME Recruits. Expert guidance for job seekers and employers in Kent.",
-}
+export default function NewsPage() {
+  const articles = useQuery(api.news.list)
 
-export default async function NewsPage() {
-  const articles = await prisma.newsArticle.findMany({
-    where: {
-      published: true,
-    },
-    orderBy: {
-      publishedAt: "desc",
-    },
-  })
-
-  const featuredArticle = articles[0]
-  const regularArticles = articles.slice(1)
+  const featuredArticle = articles?.[0]
+  const regularArticles = articles?.slice(1) || []
 
   return (
     <div className="flex flex-col">
@@ -92,10 +82,14 @@ export default async function NewsPage() {
               {featuredArticle ? "Latest Articles" : "All Articles"}
             </h2>
 
-            {regularArticles.length > 0 ? (
+            {articles === undefined ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Loading articles...</p>
+              </div>
+            ) : regularArticles.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {regularArticles.map((article) => (
-                  <Card key={article.id} className="flex flex-col hover:shadow-lg transition-shadow">
+                  <Card key={article._id} className="flex flex-col hover:shadow-lg transition-shadow">
                     <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-8 flex items-center justify-center">
                       <div className="w-full h-48 bg-primary/20 rounded-lg flex items-center justify-center">
                         <p className="text-muted-foreground text-sm">Article Image</p>
