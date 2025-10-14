@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ME Recruits - Recruitment Website
 
-## Getting Started
+A modern recruitment website built with Next.js 15, featuring job listings, news articles, CV uploads, and contact forms.
 
-First, run the development server:
+## Tech Stack
 
+- **Framework:** Next.js 15.5.5 with Turbopack
+- **Database:** Prisma ORM (SQLite for local, PostgreSQL for production)
+- **UI Components:** Shadcn/ui with Tailwind CSS
+- **Form Validation:** Zod + React Hook Form
+- **Icons:** Lucide React
+
+## Local Development
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Initialize the database:
+```bash
+npx prisma generate
+npx prisma migrate dev
+npx prisma db seed
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) to view the site.
 
-To learn more about Next.js, take a look at the following resources:
+## Vercel Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Required Environment Variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Set these in your Vercel project settings:
 
-## Deploy on Vercel
+```
+DATABASE_URL=<your-vercel-postgres-connection-string>
+NEXTAUTH_SECRET=<random-string-for-production>
+NEXTAUTH_URL=https://your-domain.com
+ADMIN_EMAIL=info@merecruits.com
+NEXT_PUBLIC_GA_ID=G-4VYP23VK90
+NEXT_PUBLIC_CLARITY_PROJECT_ID=smzm2qpgl5
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Database Setup on Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Add **Vercel Postgres** to your project
+2. Copy the `DATABASE_URL` from Vercel Postgres settings
+3. Set it as an environment variable
+4. Run migrations:
+```bash
+npx prisma migrate deploy
+```
+
+### First Deployment
+
+The first build may not have database content. The sitemap will fallback to static pages only until you:
+1. Set up the database
+2. Run migrations
+3. Seed initial data
+
+## Project Structure
+
+```
+src/
+├── app/                  # Next.js 15 app directory
+│   ├── api/             # API routes
+│   ├── about-us/        # About page
+│   ├── contact/         # Contact form
+│   ├── meet-the-team/   # Team member profiles
+│   ├── need-a-job/      # Job seeker section
+│   ├── need-staff/      # Employer section
+│   ├── news/            # News/blog articles
+│   ├── upload-cv/       # CV upload form
+│   └── ...
+├── components/          # React components
+│   ├── ui/             # Shadcn/ui components
+│   └── layout/         # Layout components
+├── lib/                # Utility functions
+└── prisma/             # Database schema and migrations
+```
+
+## Features
+
+- ✅ Responsive design for all devices
+- ✅ SEO-optimized with sitemap generation
+- ✅ Dynamic job vacancies with filtering
+- ✅ News/blog system
+- ✅ Contact form with database persistence
+- ✅ CV upload functionality
+- ✅ UK English content throughout
+- ✅ Google Analytics & Microsoft Clarity integration
+
+## Build
+
+```bash
+npm run build
+```
+
+## License
+
+Copyright © 2025 ME Recruits. All rights reserved.
