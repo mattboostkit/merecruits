@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
-import { prisma } from '@/lib/prisma'
+import { ConvexHttpClient } from "convex/browser"
+import { api } from "convex/_generated/api"
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600 // Revalidate every hour
@@ -27,28 +28,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   try {
+    // Initialize Convex client for server-side usage
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
+
     // Dynamic job pages
-    const jobs = await prisma.job.findMany({
-      where: { status: 'ACTIVE' },
-      select: { slug: true, updatedAt: true },
-    })
+    const jobs = await convex.query(api.jobs.list, {})
 
     const jobPages = jobs.map((job) => ({
       url: `${baseUrl}/need-a-job/job-vacancies/${job.slug}`,
-      lastModified: job.updatedAt,
+      lastModified: new Date(job._creationTime),
       changeFrequency: 'daily' as const,
       priority: 0.7,
     }))
 
     // Dynamic news pages
-    const articles = await prisma.newsArticle.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
-    })
+    const articles = await convex.query(api.news.list, {})
 
     const newsPages = articles.map((article) => ({
       url: `${baseUrl}/news/${article.slug}`,
-      lastModified: article.updatedAt,
+      lastModified: new Date(article._creationTime),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     }))
