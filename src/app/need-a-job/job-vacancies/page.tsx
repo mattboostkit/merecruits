@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowRight, Briefcase, MapPin, Search } from "lucide-react"
 import { useQuery } from "convex/react"
-import { api } from "../../../../../convex/_generated/api"
+import { api } from "convex/_generated/api"
 
 export default function JobVacanciesPage() {
   const [searchTerm, setSearchTerm] = useState("")
