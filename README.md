@@ -1,11 +1,11 @@
 # ME Recruits - Recruitment Website
 
-A modern recruitment website built with Next.js 15, featuring job listings, news articles, CV uploads, and contact forms.
+A modern recruitment website built with Next.js 15 and Convex, featuring real-time job listings, news articles, CV uploads, and contact forms.
 
 ## Tech Stack
 
 - **Framework:** Next.js 15.5.5 with Turbopack
-- **Database:** Prisma ORM (SQLite for local, PostgreSQL for production)
+- **Backend:** Convex (real-time database and backend functions)
 - **UI Components:** Shadcn/ui with Tailwind CSS
 - **Form Validation:** Zod + React Hook Form
 - **Icons:** Lucide React
@@ -17,56 +17,52 @@ A modern recruitment website built with Next.js 15, featuring job listings, news
 npm install
 ```
 
-2. Set up environment variables:
+2. Initialize Convex:
 ```bash
-cp .env.example .env
+npx convex dev
+```
+This will prompt you to login and create a project. It will add `NEXT_PUBLIC_CONVEX_URL` to your `.env.local`
+
+3. Seed sample data:
+```bash
+npm run seed
 ```
 
-3. Initialize the database:
-```bash
-npx prisma generate
-npx prisma migrate dev
-npx prisma db seed
-```
-
-4. Run the development server:
+4. Run the development server (in another terminal):
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the site.
 
+**Note:** Keep `npx convex dev` running while developing for real-time updates!
+
 ## Vercel Deployment
 
-### Required Environment Variables
+### Quick Start
 
-Set these in your Vercel project settings:
-
-```
-DATABASE_URL=<your-vercel-postgres-connection-string>
-NEXTAUTH_SECRET=<random-string-for-production>
-NEXTAUTH_URL=https://your-domain.com
-ADMIN_EMAIL=info@merecruits.com
-NEXT_PUBLIC_GA_ID=G-4VYP23VK90
-NEXT_PUBLIC_CLARITY_PROJECT_ID=smzm2qpgl5
-```
-
-### Database Setup on Vercel
-
-1. Add **Vercel Postgres** to your project
-2. Copy the `DATABASE_URL` from Vercel Postgres settings
-3. Set it as an environment variable
-4. Run migrations:
+1. **Deploy Convex to production:**
 ```bash
-npx prisma migrate deploy
+npx convex deploy
+```
+This gives you a production URL like `https://blessed-ibis-400.convex.cloud`
+
+2. **Add environment variable in Vercel:**
+   - Go to Vercel Dashboard → Your Project → Settings → Environment Variables
+   - Add: `NEXT_PUBLIC_CONVEX_URL` = `<your-production-convex-url>`
+   - Save and redeploy
+
+3. **Seed production data:**
+```bash
+npx convex run --prod seed:seedData
 ```
 
-### First Deployment
+4. **Deploy to Vercel:**
+```bash
+git push origin master
+```
 
-The first build may not have database content. The sitemap will fallback to static pages only until you:
-1. Set up the database
-2. Run migrations
-3. Seed initial data
+**See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for detailed instructions.**
 
 ## Project Structure
 
