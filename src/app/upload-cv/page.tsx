@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "convex/react"
-import { api } from "@/convex/_generated/api"
+import { api } from "../../../../convex/_generated/api"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_FILE_TYPES = [

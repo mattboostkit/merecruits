@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 
 // Submit a CV upload
 export const submit = mutation({
@@ -14,7 +15,7 @@ export const submit = mutation({
   },
   handler: async (ctx, args) => {
     // Find job by slug if reference provided
-    let jobId: string | undefined = undefined;
+    let jobId: Id<"jobs"> | undefined = undefined;
     if (args.jobReference) {
       const job = await ctx.db
         .query("jobs")

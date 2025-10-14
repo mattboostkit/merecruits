@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "convex/react"
-import { api } from "@/convex/_generated/api"
+import { api } from "../../../convex/_generated/api"
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
