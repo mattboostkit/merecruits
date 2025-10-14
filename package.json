@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "npm run convex:dev & next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "tsx prisma/seed.ts"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy",
+    "seed": "convex run seed:seedData"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.0",
@@ -24,6 +23,7 @@
     "@vercel/analytics": "^1.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "convex": "^1.27.5",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.545.0",
     "next": "15.5.5",

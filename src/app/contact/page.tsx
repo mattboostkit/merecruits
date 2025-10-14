@@ -11,6 +11,8 @@ import { MapPin, Phone, Mail, Clock, Send } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { useMutation } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -26,6 +28,7 @@ type ContactFormData = z.infer<typeof contactSchema>
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const submitContact = useMutation(api.contact.submit)
 
   const {
     register,
@@ -41,19 +44,14 @@ export default function ContactPage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+      await submitContact({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        company: data.company,
+        type: data.type,
+        message: data.message,
       })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to send message")
-      }
 
       setSubmitSuccess(true)
       reset()

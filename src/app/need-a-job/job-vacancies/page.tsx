@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,102 +8,27 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowRight, Briefcase, MapPin, Search } from "lucide-react"
-
-// This will be replaced with actual API call
-const mockJobs = [
-  {
-    id: "1",
-    title: "Marketing Manager",
-    slug: "marketing-manager-maidstone",
-    location: "Maidstone",
-    description: "Leading marketing agency seeks experienced Marketing Manager to oversee campaigns, manage team and drive growth. Excellent opportunity for career progression.",
-    salary: "£35,000 - £45,000",
-    type: "PERMANENT",
-    category: "Marketing",
-    status: "ACTIVE",
-    featured: true,
-    createdAt: new Date(),
-  },
-  {
-    id: "2",
-    title: "Legal Secretary",
-    slug: "legal-secretary-tunbridge-wells",
-    location: "Tunbridge Wells",
-    description: "Well-established law firm requires experienced Legal Secretary to support busy litigation department. Competitive salary and benefits package.",
-    salary: "£26,000 - £32,000",
-    type: "PERMANENT",
-    category: "Legal",
-    status: "ACTIVE",
-    featured: true,
-    createdAt: new Date(),
-  },
-  {
-    id: "3",
-    title: "Office Administrator",
-    slug: "office-administrator-medway",
-    location: "Medway",
-    description: "Growing SME seeks organised Office Administrator to manage daily operations, coordinate meetings and provide administrative support.",
-    salary: "£24,000 - £28,000",
-    type: "PERMANENT",
-    category: "Admin",
-    status: "ACTIVE",
-    featured: false,
-    createdAt: new Date(),
-  },
-  {
-    id: "4",
-    title: "Temporary Receptionist",
-    slug: "temporary-receptionist-maidstone",
-    location: "Maidstone",
-    description: "Immediate temporary receptionist role for 3 months to cover maternity leave. Professional office environment with potential for extension.",
-    salary: "£12 - £14 per hour",
-    type: "TEMPORARY",
-    category: "Admin",
-    status: "ACTIVE",
-    featured: false,
-    createdAt: new Date(),
-  },
-]
+import { useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 export default function JobVacanciesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [locationFilter, setLocationFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
   const [categoryFilter, setCategoryFilter] = useState("all")
-  const [filteredJobs, setFilteredJobs] = useState(mockJobs)
 
-  useEffect(() => {
-    let filtered = mockJobs
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (job) =>
-          job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.description.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    // Location filter
-    if (locationFilter !== "all") {
-      filtered = filtered.filter((job) => job.location === locationFilter)
-    }
-
-    // Type filter
-    if (typeFilter !== "all") {
-      filtered = filtered.filter((job) => job.type === typeFilter)
-    }
-
-    // Category filter
-    if (categoryFilter !== "all") {
-      filtered = filtered.filter((job) => job.category === categoryFilter)
-    }
-
-    setFilteredJobs(filtered)
-  }, [searchTerm, locationFilter, typeFilter, categoryFilter])
+  // Fetch jobs from Convex with filters
+  const jobs = useQuery(api.jobs.list, {
+    search: searchTerm || undefined,
+    location: locationFilter !== "all" ? locationFilter : undefined,
+    type: typeFilter !== "all" ? typeFilter : undefined,
+    category: categoryFilter !== "all" ? categoryFilter : undefined,
+  })
 
   const locations = ["Maidstone", "Medway", "Tunbridge Wells", "Dartford", "West Malling"]
   const categories = ["Marketing", "Legal", "Admin", "Operations", "Finance", "IT", "HR"]
+
+  const filteredJobs = jobs || []
 
   return (
     <div className="flex flex-col">
@@ -229,10 +154,14 @@ export default function JobVacanciesPage() {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            {filteredJobs.length > 0 ? (
+            {jobs === undefined ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Loading jobs...</p>
+              </div>
+            ) : filteredJobs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredJobs.map((job) => (
-                  <Card key={job.id} className="hover:shadow-lg transition-shadow flex flex-col">
+                  <Card key={job._id} className="hover:shadow-lg transition-shadow flex flex-col">
                     <CardHeader>
                       <div className="flex justify-between items-start mb-2">
                         <Badge variant={job.type === "PERMANENT" ? "default" : "secondary"}>

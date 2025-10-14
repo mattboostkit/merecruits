@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { ConvexClientProvider } from "./ConvexClientProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -124,9 +125,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${plusJakarta.variable} antialiased font-sans min-h-screen flex flex-col`}
       >
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <ConvexClientProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </ConvexClientProvider>
       </body>
     </html>
   );

@@ -11,6 +11,8 @@ import { Upload, FileText, CheckCircle2, AlertCircle, X } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { useMutation } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_FILE_TYPES = [
@@ -36,6 +38,7 @@ type CVUploadFormData = z.infer<typeof cvUploadSchema>
 function UploadCVContent() {
   const searchParams = useSearchParams()
   const jobRef = searchParams.get("job_ref")
+  const submitCV = useMutation(api.cvUploads.submit)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
@@ -120,24 +123,16 @@ function UploadCVContent() {
     setIsSubmitting(true)
 
     try {
-      // TODO: Implement actual file upload to storage (S3, Azure Blob, etc.)
-      // For now, we're just sending metadata to the API
-      const response = await fetch("/api/upload-cv", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...data,
-          fileName: file.name,
-        }),
+      // TODO: Implement actual file upload to storage (Convex file storage or S3)
+      await submitCV({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        jobReference: data.jobReference,
+        coverLetter: data.coverLetter,
+        fileName: file.name,
       })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to upload CV")
-      }
 
       setSubmitSuccess(true)
       reset()
