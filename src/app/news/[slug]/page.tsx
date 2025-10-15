@@ -10,6 +10,8 @@ import { format } from "date-fns"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
 import { use } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface NewsArticlePageProps {
   params: Promise<{
@@ -96,8 +98,10 @@ export default function NewsArticlePage({ params }: NewsArticlePageProps) {
       <section className="pb-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="prose prose-lg max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: article.content }} />
+            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-3xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-2xl prose-h3:mt-6 prose-h3:mb-3 prose-p:mb-4 prose-ul:my-4 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-strong:text-foreground">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {article.content}
+              </ReactMarkdown>
             </div>
 
             {/* Share Section */}
