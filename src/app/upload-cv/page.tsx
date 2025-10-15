@@ -370,24 +370,26 @@ function UploadCVContent() {
 
                   {/* GDPR Consent */}
                   <div className="space-y-2">
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 p-4 border border-border rounded-lg bg-muted/30">
                       <input
                         type="checkbox"
                         id="gdprConsent"
                         {...register("gdprConsent")}
-                        className="mt-1 h-4 w-4 rounded border-input"
+                        className="mt-1 h-5 w-5 rounded border-input flex-shrink-0 cursor-pointer"
                       />
-                      <Label htmlFor="gdprConsent" className="text-sm text-muted-foreground cursor-pointer leading-relaxed">
-                        <span className="text-destructive font-semibold">* </span>
-                        I agree to the processing of my personal data in accordance with the{" "}
-                        <a href="/privacy-policy" className="text-primary hover:underline font-medium">
-                          Privacy Policy
-                        </a>
-                        . I understand that my CV and personal information will be stored and used to match me with suitable job opportunities.
-                      </Label>
+                      <div className="flex-1">
+                        <Label htmlFor="gdprConsent" className="text-sm cursor-pointer leading-relaxed block">
+                          <span className="text-destructive font-semibold">* Required: </span>
+                          I agree to the processing of my personal data in accordance with the{" "}
+                          <a href="/privacy-policy" className="text-primary hover:underline font-semibold underline-offset-2">
+                            Privacy Policy
+                          </a>
+                          . I understand that my CV and personal information will be stored and used to match me with suitable job opportunities.
+                        </Label>
+                      </div>
                     </div>
                     {errors.gdprConsent && (
-                      <p className="text-sm text-destructive ml-7">{errors.gdprConsent.message}</p>
+                      <p className="text-sm text-destructive pl-4">{errors.gdprConsent.message}</p>
                     )}
                   </div>
 
