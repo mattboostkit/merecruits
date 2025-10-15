@@ -18,6 +18,7 @@ export const analyzeCVForJob = action({
       });
       const completion = await openai.chat.completions.create({
         model: "gpt-5-mini-2025-08-07",
+        reasoning_effort: "medium",
         messages: [
           {
             role: "system",
@@ -90,6 +91,7 @@ export const scoreCVQuick = action({
 
       const completion = await openai.chat.completions.create({
         model: "gpt-5-mini-2025-08-07",
+        reasoning_effort: "low",
         messages: [
           {
             role: "system",
@@ -168,6 +170,7 @@ export const generateImprovedCV = action({
 
       const completion = await openai.chat.completions.create({
         model: "gpt-5-mini-2025-08-07",
+        reasoning_effort: "medium",
         messages: [
           {
             role: "system",
