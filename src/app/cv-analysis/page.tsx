@@ -238,6 +238,8 @@ export default function CVAnalysisPage() {
       if (result.success) {
         setScore(result.score)
         setScoreFeedback(result.feedback)
+        // Scroll to top to show the score
+        window.scrollTo({ top: 0, behavior: "smooth" })
       } else {
         setError(result.error || "Failed to score CV. Please try again.")
       }

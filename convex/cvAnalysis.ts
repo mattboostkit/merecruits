@@ -117,7 +117,17 @@ QUICK WINS: [2-3 specific improvements that would boost the score]`,
         max_completion_tokens: 500,
       });
 
-      const response = completion.choices[0]?.message?.content || "Unable to score CV.";
+      const response = completion.choices[0]?.message?.content;
+
+      if (!response) {
+        console.error("No response from OpenAI:", completion);
+        return {
+          success: false,
+          error: "No response received from AI. Please try again.",
+          score: 0,
+          feedback: "",
+        };
+      }
 
       // Parse the score from the response
       const scoreMatch = response.match(/SCORE:\s*(\d+)\/10/);
