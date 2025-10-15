@@ -308,7 +308,7 @@ Wrap up the interview with final thoughts and how readers can connect with the i
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    The author's photo and bio will be pulled from the team section
+                    The author&apos;s photo and bio will be pulled from the team section
                   </p>
                 </div>
 
