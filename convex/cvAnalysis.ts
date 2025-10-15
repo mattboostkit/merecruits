@@ -17,7 +17,7 @@ export const analyzeCVForJob = action({
         apiKey: process.env.OPENAI_API_KEY!,
       });
       const completion = await openai.chat.completions.create({
-        model: "gpt-5-mini-2025-08-07",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -64,7 +64,7 @@ Please provide detailed, actionable feedback to help this candidate improve thei
       return {
         success: true,
         analysis,
-        model: "gpt-5-mini-2025-08-07",
+        model: "gpt-4o-mini",
       };
     } catch (error) {
       console.error("OpenAI API Error:", error);

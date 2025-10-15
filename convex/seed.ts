@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 // This is a seed script that can be run manually from the Convex dashboard
 // or by calling it as a mutation
