@@ -12,14 +12,16 @@ export default defineSchema({
     salaryMin: v.optional(v.number()),
     salaryMax: v.optional(v.number()),
     type: v.union(v.literal("PERMANENT"), v.literal("TEMPORARY"), v.literal("CONTRACT")),
-    category: v.string(),
+    category: v.string(), // This is the "Sector" field
+    consultant: v.optional(v.string()), // Consultant name (e.g., "Helen Barham", "Melissa Staveley")
     status: v.union(v.literal("ACTIVE"), v.literal("DRAFT"), v.literal("CLOSED")),
     featured: v.boolean(),
     expiresAt: v.optional(v.number()),
   })
     .index("by_slug", ["slug"])
     .index("by_status", ["status"])
-    .index("by_featured", ["featured"]),
+    .index("by_featured", ["featured"])
+    .index("by_consultant", ["consultant"]),
 
   // CV Upload model
   cvUploads: defineTable({
