@@ -21,6 +21,7 @@ import type * as jobs from "../jobs.js";
 import type * as news from "../news.js";
 import type * as seed from "../seed.js";
 import type * as team from "../team.js";
+import type * as teamPhotos from "../teamPhotos.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   news: typeof news;
   seed: typeof seed;
   team: typeof team;
+  teamPhotos: typeof teamPhotos;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

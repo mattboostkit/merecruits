@@ -56,11 +56,21 @@ export default function MeetTheTeamPage() {
                 {teamMembers.map((member) => (
                   <Card key={member._id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
                     <div className="bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center p-8 h-64">
-                      <div className="w-40 h-40 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                        <span className="text-5xl font-bold text-primary">
-                          {member.name.split(" ").map(n => n[0]).join("")}
-                        </span>
-                      </div>
+                      {member.imageUrl && member.imageUrl !== "" ? (
+                        <div className="w-40 h-40 rounded-full overflow-hidden flex-shrink-0 bg-white">
+                          <img
+                            src={member.imageUrl}
+                            alt={member.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-40 h-40 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                          <span className="text-5xl font-bold text-primary">
+                            {member.name.split(" ").map(n => n[0]).join("")}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <CardHeader className="flex-shrink-0">
                       <CardTitle className="text-xl">{member.name}</CardTitle>
