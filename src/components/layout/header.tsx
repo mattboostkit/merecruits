@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X, Phone, Mail } from "lucide-react"
@@ -53,7 +54,14 @@ export function Header() {
         <nav className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-primary">ME Recruits</span>
+            <Image
+              src="https://ik.imagekit.io/boostkit/ME%20Recruits/logo-white-bg.webp?updatedAt=1760513596543"
+              alt="ME Recruits"
+              width={180}
+              height={60}
+              className="h-12 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}

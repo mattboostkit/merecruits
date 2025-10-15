@@ -17,8 +17,17 @@ export default function HomePage() {
     <div className="flex flex-col">
       {/* Hero Section - Modern with Image */}
       <section className="relative bg-gradient-to-br from-primary via-primary/95 to-accent text-primary-foreground py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920&q=80')] bg-cover bg-center opacity-10" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/85 to-accent/90" />
+        <div className="absolute inset-0">
+          <Image
+            src="https://ik.imagekit.io/boostkit/ME%20Recruits/home-hero.webp?updatedAt=1760513529464"
+            alt="ME Recruits - Professional recruitment team"
+            fill
+            className="object-cover"
+            priority
+            quality={90}
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/80 to-accent/85" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
