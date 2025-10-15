@@ -56,7 +56,7 @@ Please provide detailed, actionable feedback to help this candidate improve thei
           },
         ],
         temperature: 0.7,
-        max_tokens: 2000,
+        max_completion_tokens: 2000,
       });
 
       const analysis = completion.choices[0]?.message?.content || "Unable to generate analysis.";
@@ -116,7 +116,7 @@ QUICK WINS: [2-3 specific improvements that would boost the score]`,
           },
         ],
         temperature: 0.7,
-        max_tokens: 500,
+        max_completion_tokens: 500,
       });
 
       const response = completion.choices[0]?.message?.content || "Unable to score CV.";
@@ -201,7 +201,7 @@ Please provide a complete rewritten CV that will maximize this candidate's chanc
           },
         ],
         temperature: 0.7,
-        max_tokens: 3000,
+        max_completion_tokens: 3000,
       });
 
       const improvedCV = completion.choices[0]?.message?.content || "Unable to generate improved CV.";
