@@ -349,14 +349,46 @@ export const updateTeamLinkedIn = mutation({
   },
 });
 
+// Count all articles (for debugging)
+export const countArticles = query({
+  args: {},
+  handler: async (ctx) => {
+    const articles = await ctx.db.query("newsArticles").collect();
+    return {
+      total: articles.length,
+      articles: articles.map(a => ({ title: a.title, slug: a.slug, published: a.published })),
+    };
+  },
+});
+
+// Delete ALL articles (use with caution)
+export const deleteAllArticles = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const articles = await ctx.db.query("newsArticles").collect();
+    let deleted = 0;
+    for (const article of articles) {
+      await ctx.db.delete(article._id);
+      deleted++;
+    }
+    return {
+      success: true,
+      message: `Deleted ${deleted} articles`,
+      deleted,
+    };
+  },
+});
+
 // Replace all blog articles with 4 unique, high-quality articles
 export const replaceBlogArticles = mutation({
   args: {},
   handler: async (ctx) => {
     // Delete all existing articles
     const existingArticles = await ctx.db.query("newsArticles").collect();
+    let deletedCount = 0;
     for (const article of existingArticles) {
       await ctx.db.delete(article._id);
+      deletedCount++;
     }
 
     // Create 4 new unique articles
@@ -710,8 +742,9 @@ export const replaceBlogArticles = mutation({
 
     return {
       success: true,
-      message: `Successfully replaced all articles with ${newArticles.length} new unique blog posts`,
-      count: newArticles.length,
+      message: `Deleted ${deletedCount} old articles and created ${newArticles.length} new unique blog posts`,
+      deleted: deletedCount,
+      created: newArticles.length,
     };
   },
 });
