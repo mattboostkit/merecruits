@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useMutation } from "convex/react"
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, Save, FileText, Sparkles } from "lucide-react"
 
 export default function NewArticlePage() {
   const router = useRouter()
@@ -20,6 +20,7 @@ export default function NewArticlePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
+    slug: "",
     excerpt: "",
     content: "",
     imageUrl: "",
@@ -27,11 +28,158 @@ export default function NewArticlePage() {
     published: false,
   })
 
+  // Auto-generate slug from title
+  useEffect(() => {
+    if (formData.title && !formData.slug) {
+      setFormData(prev => ({ ...prev, slug: generateSlug(formData.title) }))
+    }
+  }, [formData.title, formData.slug])
+
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "")
+  }
+
+  // Markdown templates
+  const templates = {
+    standard: `## Introduction
+
+Start your article with an engaging introduction that hooks the reader and explains what they'll learn.
+
+## Main Section Heading
+
+Write your main content here. Break it into digestible paragraphs to keep readers engaged.
+
+### Subsection Heading (if needed)
+
+Add subsections to organize complex topics. Use bullet points where appropriate:
+
+- Key point one
+- Key point two
+- Key point three
+
+## Another Major Section
+
+Continue with more valuable content. Use **bold** for emphasis and *italics* for subtle emphasis.
+
+> Use blockquotes to highlight important takeaways or quotes from experts.
+
+## Conclusion
+
+Summarize the key points and provide a clear call-to-action or next steps for your readers.`,
+
+    howTo: `## How to [Topic]: A Step-by-Step Guide
+
+Introduction: Briefly explain what the reader will learn and why it's important.
+
+## Step 1: [First Step]
+
+Explain the first step in detail. Be specific and actionable.
+
+## Step 2: [Second Step]
+
+Continue with the second step. Include any tips or common mistakes to avoid.
+
+## Step 3: [Third Step]
+
+Third step details here.
+
+## Step 4: [Fourth Step]
+
+Fourth step details here.
+
+## Pro Tips
+
+- Quick tip one
+- Quick tip two
+- Quick tip three
+
+## Common Mistakes to Avoid
+
+- Mistake 1 and how to avoid it
+- Mistake 2 and how to avoid it
+
+## Conclusion
+
+Summarize what the reader has learned and encourage them to take action.`,
+
+    listicle: `## Introduction
+
+Set up why this list matters and what value it provides to readers.
+
+## 1. [First Item Title]
+
+Explain the first item. Include specific details, examples, or actionable advice.
+
+## 2. [Second Item Title]
+
+Detail about the second item goes here.
+
+## 3. [Third Item Title]
+
+Third item explanation.
+
+## 4. [Fourth Item Title]
+
+Fourth item details.
+
+## 5. [Fifth Item Title]
+
+Fifth item information.
+
+## Bonus: [Extra Item]
+
+Add a bonus tip or item for extra value.
+
+## Final Thoughts
+
+Wrap up the list with key takeaways and next steps.`,
+
+    interview: `## Introduction
+
+Brief introduction about the person being interviewed and why their insights matter.
+
+## About [Interviewee Name]
+
+Short bio about the interviewee - their background, experience, and current role.
+
+## The Interview
+
+### Q: [First Question]
+
+**A:** Answer from the interviewee.
+
+### Q: [Second Question]
+
+**A:** Answer from the interviewee.
+
+### Q: [Third Question]
+
+**A:** Answer from the interviewee.
+
+### Q: [Fourth Question]
+
+**A:** Answer from the interviewee.
+
+### Q: [Fifth Question]
+
+**A:** Answer from the interviewee.
+
+## Key Takeaways
+
+- Main insight one
+- Main insight two
+- Main insight three
+
+## Conclusion
+
+Wrap up the interview with final thoughts and how readers can connect with the interviewee.`
+  }
+
+  const insertTemplate = (templateType: keyof typeof templates) => {
+    setFormData({ ...formData, content: templates[templateType] })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,11 +194,12 @@ export default function NewArticlePage() {
         return
       }
 
-      const slug = generateSlug(formData.title)
+      // Use the slug from form data (which may be auto-generated or manually edited)
+      const finalSlug = formData.slug || generateSlug(formData.title)
 
       await createArticle({
         title: formData.title,
-        slug: slug,
+        slug: finalSlug,
         excerpt: formData.excerpt,
         content: formData.content,
         imageUrl: formData.imageUrl || undefined,
@@ -104,6 +253,21 @@ export default function NewArticlePage() {
                   />
                 </div>
 
+                {/* Slug */}
+                <div className="space-y-2">
+                  <Label htmlFor="slug">URL Slug *</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    placeholder="top-10-interview-tips-for-2025"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Auto-generated from title. Edit to customize the URL: /news/<span className="font-semibold">{formData.slug || "your-slug-here"}</span>
+                  </p>
+                </div>
+
                 {/* Author */}
                 <div className="space-y-2">
                   <Label htmlFor="author">Author Name *</Label>
@@ -132,21 +296,69 @@ export default function NewArticlePage() {
                   </p>
                 </div>
 
-                {/* Content */}
+                {/* Content with Templates */}
                 <div className="space-y-2">
-                  <Label htmlFor="content">Article Content *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="content">Article Content (Markdown) *</Label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => insertTemplate('standard')}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        Standard
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => insertTemplate('howTo')}
+                      >
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        How-To
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => insertTemplate('listicle')}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        List
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => insertTemplate('interview')}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        Interview
+                      </Button>
+                    </div>
+                  </div>
                   <Textarea
                     id="content"
                     value={formData.content}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    placeholder="Write your full article here. You can use basic HTML tags like <p>, <h2>, <h3>, <strong>, <em>, etc."
+                    placeholder="Click a template button above to get started, or write your own Markdown..."
                     rows={20}
                     required
                     className="font-mono text-sm"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Tip: Use HTML tags for formatting: &lt;h2&gt; for headings, &lt;p&gt; for paragraphs, &lt;strong&gt; for bold text
-                  </p>
+                  <div className="text-xs text-muted-foreground space-y-1 bg-slate-100 p-3 rounded">
+                    <p className="font-semibold">Markdown Guide:</p>
+                    <ul className="list-disc list-inside space-y-0.5">
+                      <li><code className="bg-white px-1 rounded">## Heading</code> - Major section heading (H2)</li>
+                      <li><code className="bg-white px-1 rounded">### Subheading</code> - Subsection heading (H3)</li>
+                      <li><code className="bg-white px-1 rounded">**bold**</code> - Bold text</li>
+                      <li><code className="bg-white px-1 rounded">*italic*</code> - Italic text</li>
+                      <li><code className="bg-white px-1 rounded">- Item</code> - Bullet point</li>
+                      <li><code className="bg-white px-1 rounded">&gt; Quote</code> - Blockquote</li>
+                    </ul>
+                  </div>
                 </div>
 
                 {/* Image URL */}
