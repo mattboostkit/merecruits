@@ -1,7 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query, action } from "./_generated/server";
+import { mutation, query, action, internalAction } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
-import { internal } from "./_generated/api";
 
 // Generate upload URL for CV file
 export const generateUploadUrl = mutation(async (ctx) => {
@@ -53,21 +52,16 @@ export const submit = mutation({
       message: args.coverLetter,
     });
 
-    // TODO: Schedule email notification after deployment
-    // Once deployed, uncomment this to enable automatic email notifications:
-    // await ctx.scheduler.runAfter(0, internal.cvUploads.sendNotifications, {
-    //   cvUploadId,
-    //   applicantEmail: args.email,
-    //   applicantName: `${args.firstName} ${args.lastName}`,
-    //   jobReference: args.jobReference,
-    // });
+    // Note: Email notifications will be sent via webhook or manual trigger
+    // To enable automatic emails, set up a scheduled action after deployment
 
     return cvUploadId;
   },
 });
 
-// Action to send email notifications (uses external API)
-export const sendNotifications = action({
+// Internal action to send email notifications (uses external API)
+// Can be called manually from Convex Dashboard or triggered by webhook
+export const sendNotifications = internalAction({
   args: {
     cvUploadId: v.id("cvUploads"),
     applicantEmail: v.string(),
@@ -93,7 +87,7 @@ export const sendNotifications = action({
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: "ME Recruits <noreply@merecruits.com>",
+          from: "ME Recruits <onboarding@resend.dev>",
           to: adminEmail,
           subject: `New CV Submission: ${args.applicantName}`,
           html: `
@@ -114,7 +108,7 @@ export const sendNotifications = action({
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: "ME Recruits <info@merecruits.com>",
+          from: "ME Recruits <onboarding@resend.dev>",
           to: args.applicantEmail,
           subject: "CV Received - ME Recruits",
           html: `

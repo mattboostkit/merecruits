@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as aiCVParser from "../aiCVParser.js";
 import type * as contact from "../contact.js";
 import type * as cvUploads from "../cvUploads.js";
 import type * as jobs from "../jobs.js";
@@ -29,6 +30,7 @@ import type * as team from "../team.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  aiCVParser: typeof aiCVParser;
   contact: typeof contact;
   cvUploads: typeof cvUploads;
   jobs: typeof jobs;
