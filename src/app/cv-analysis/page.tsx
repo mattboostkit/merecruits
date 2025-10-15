@@ -24,10 +24,14 @@ export default function CVAnalysisPage() {
   const [useCustomJob, setUseCustomJob] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [improvedCV, setImprovedCV] = useState<string | null>(null)
+  const [isScoring, setIsScoring] = useState(false)
+  const [score, setScore] = useState<number | null>(null)
+  const [scoreFeedback, setScoreFeedback] = useState<string | null>(null)
 
   const jobs = useQuery(api.jobs.list, {})
   const analyzeCVForJob = useAction(api.cvAnalysis.analyzeCVForJob)
   const generateImprovedCV = useAction(api.cvAnalysis.generateImprovedCV)
+  const scoreCVQuick = useAction(api.cvAnalysis.scoreCVQuick)
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -171,6 +175,36 @@ export default function CVAnalysisPage() {
     URL.revokeObjectURL(url)
   }
 
+  const handleQuickScore = async () => {
+    if (!cvText) {
+      setError("Please upload your CV first")
+      return
+    }
+
+    setError(null)
+    setScore(null)
+    setScoreFeedback(null)
+    setIsScoring(true)
+
+    try {
+      const result = await scoreCVQuick({
+        cvText,
+      })
+
+      if (result.success) {
+        setScore(result.score)
+        setScoreFeedback(result.feedback)
+      } else {
+        setError(result.error || "Failed to score CV. Please try again.")
+      }
+    } catch (err) {
+      console.error("Scoring error:", err)
+      setError("An unexpected error occurred. Please try again.")
+    } finally {
+      setIsScoring(false)
+    }
+  }
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -197,6 +231,29 @@ export default function CVAnalysisPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Input Section */}
               <div className="space-y-6">
+                {/* Quick Score Card */}
+                {score !== null && scoreFeedback && (
+                  <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <Sparkles className="h-5 w-5 text-primary" />
+                          Your CV Score
+                        </span>
+                        <div className="flex items-center gap-3">
+                          <div className="text-5xl font-bold text-primary">{score}</div>
+                          <div className="text-2xl font-semibold text-muted-foreground">/10</div>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
+                        {scoreFeedback}
+                      </pre>
+                    </CardContent>
+                  </Card>
+                )}
+
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -319,8 +376,28 @@ export default function CVAnalysisPage() {
 
                 <div className="space-y-3">
                   <Button
+                    onClick={handleQuickScore}
+                    disabled={isScoring || isAnalyzing || isGenerating || !cvText}
+                    size="lg"
+                    variant="default"
+                    className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                  >
+                    {isScoring ? (
+                      <>
+                        <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
+                        Scoring Your CV...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Score My CV (Out of 10)
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
                     onClick={handleAnalyze}
-                    disabled={isAnalyzing || isGenerating || !cvText}
+                    disabled={isAnalyzing || isGenerating || isScoring || !cvText}
                     size="lg"
                     className="w-full"
                   >
@@ -339,7 +416,7 @@ export default function CVAnalysisPage() {
 
                   <Button
                     onClick={handleGenerateImprovedCV}
-                    disabled={isAnalyzing || isGenerating || !cvText}
+                    disabled={isAnalyzing || isGenerating || isScoring || !cvText}
                     size="lg"
                     variant="secondary"
                     className="w-full"

@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Briefcase, Users, TrendingUp, Award, MapPin, Clock, Calendar, Star, CheckCircle2, Heart, Target } from "lucide-react"
+import { ArrowRight, Briefcase, Users, TrendingUp, Award, MapPin, Clock, Calendar, Star, CheckCircle2, Heart, Target, Sparkles, FileText } from "lucide-react"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
 
@@ -97,6 +97,70 @@ export default function HomePage() {
               <div className="text-4xl font-display font-bold text-foreground mb-2">100%</div>
               <div className="text-sm text-muted-foreground font-medium">REC Compliant</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI CV Analyzer CTA */}
+      <section className="py-20 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1920&q=80')] bg-cover bg-center opacity-10" />
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-5xl mx-auto">
+            <Card className="border-2 border-primary-foreground/20 bg-white/95 backdrop-blur-sm shadow-2xl overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                <div className="p-8 lg:p-12 flex flex-col justify-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-6">
+                    <Sparkles className="h-8 w-8" />
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-display font-bold mb-4 text-foreground">
+                    How Strong is Your CV?
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                    Get your CV scored out of 10 by our AI-powered analyser. Powered by GPT-5 and 25+ years of recruitment expertise.
+                  </p>
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                      </div>
+                      <p className="text-muted-foreground">Instant CV score out of 10</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                      </div>
+                      <p className="text-muted-foreground">Identify your CV&apos;s strengths</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                      </div>
+                      <p className="text-muted-foreground">Get quick wins to boost your score</p>
+                    </div>
+                  </div>
+                  <Button asChild size="lg" className="shadow-lg w-full sm:w-auto">
+                    <Link href="/cv-analysis">
+                      <FileText className="mr-2 h-5 w-5" />
+                      Score My CV Now
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+                <div className="bg-gradient-to-br from-primary/5 to-accent/5 p-8 lg:p-12 flex items-center justify-center">
+                  <div className="relative">
+                    <div className="w-48 h-48 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-2xl">
+                      <div className="text-center">
+                        <div className="text-7xl font-display font-bold text-white mb-2">?</div>
+                        <div className="text-2xl font-bold text-white/90">/10</div>
+                      </div>
+                    </div>
+                    <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-secondary flex items-center justify-center shadow-xl animate-bounce">
+                      <Sparkles className="h-10 w-10 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       </section>

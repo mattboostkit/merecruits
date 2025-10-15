@@ -77,6 +77,72 @@ Please provide detailed, actionable feedback to help this candidate improve thei
   },
 });
 
+export const scoreCVQuick = action({
+  args: {
+    cvText: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { cvText } = args;
+
+    try {
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY!,
+      });
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-5-mini-2025-08-07",
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert CV reviewer with 25+ years of recruitment experience at ME Recruits.
+
+Your task is to quickly score a CV out of 10 and provide brief, actionable feedback.
+
+Scoring criteria (each worth 2 points):
+1. Professional formatting and structure (2 points)
+2. Clear, concise professional profile/summary (2 points)
+3. Relevant skills clearly listed (2 points)
+4. Achievements with quantifiable results (2 points)
+5. No spelling/grammar errors, appropriate length (2 points)
+
+Respond ONLY in this exact format:
+SCORE: X/10
+STRENGTHS: [2-3 bullet points]
+QUICK WINS: [2-3 specific improvements that would boost the score]`,
+          },
+          {
+            role: "user",
+            content: `Please score this CV:\n\n${cvText}`,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+      });
+
+      const response = completion.choices[0]?.message?.content || "Unable to score CV.";
+
+      // Parse the score from the response
+      const scoreMatch = response.match(/SCORE:\s*(\d+)\/10/);
+      const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+
+      return {
+        success: true,
+        score,
+        feedback: response,
+        model: "gpt-5-mini-2025-08-07",
+      };
+    } catch (error) {
+      console.error("OpenAI API Error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to score CV",
+        score: 0,
+        feedback: "",
+      };
+    }
+  },
+});
+
 export const generateImprovedCV = action({
   args: {
     cvText: v.string(),
