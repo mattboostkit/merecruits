@@ -18,6 +18,7 @@ export function Header() {
         { name: "Our Approach", href: "/need-a-job/our-approach" },
         { name: "Job Vacancies", href: "/need-a-job/job-vacancies" },
         { name: "Upload CV", href: "/upload-cv" },
+        { name: "AI CV Analysis", href: "/cv-analysis" },
       ],
     },
     { name: "Need Staff", href: "/need-staff" },
