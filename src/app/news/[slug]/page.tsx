@@ -120,16 +120,54 @@ export default function NewsArticlePage({ params }: NewsArticlePageProps) {
             <Card className="mt-12 bg-slate-50">
               <CardContent className="pt-6">
                 <div className="flex gap-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl font-bold text-primary">
-                      {article.author.split(" ").map(n => n[0]).join("")}
-                    </span>
+                  {/* Author Photo */}
+                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {article.authorDetails?.imageUrl ? (
+                      <img
+                        src={article.authorDetails.imageUrl}
+                        alt={article.author}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-2xl font-bold text-primary">
+                        {article.author.split(" ").map(n => n[0]).join("")}
+                      </span>
+                    )}
                   </div>
-                  <div>
+
+                  {/* Author Details */}
+                  <div className="flex-1">
                     <h4 className="font-semibold text-lg mb-1">{article.author}</h4>
+                    {article.authorDetails?.role && (
+                      <p className="text-sm font-medium text-primary mb-2">{article.authorDetails.role}</p>
+                    )}
                     <p className="text-sm text-muted-foreground">
-                      Recruitment specialist at ME Recruits with extensive experience in the Kent employment market.
+                      {article.authorDetails?.bio || "Recruitment specialist at ME Recruits with extensive experience in the Kent employment market."}
                     </p>
+
+                    {/* Author Links */}
+                    {(article.authorDetails?.email || article.authorDetails?.linkedInUrl) && (
+                      <div className="flex gap-3 mt-3">
+                        {article.authorDetails.email && (
+                          <Link
+                            href={`mailto:${article.authorDetails.email}`}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            Email {article.author.split(" ")[0]}
+                          </Link>
+                        )}
+                        {article.authorDetails.linkedInUrl && (
+                          <Link
+                            href={article.authorDetails.linkedInUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline"
+                          >
+                            LinkedIn Profile
+                          </Link>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>

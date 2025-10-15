@@ -18,7 +18,7 @@ export const list = query({
   },
 });
 
-// Get a single article by slug
+// Get a single article by slug (with author details)
 export const getBySlug = query({
   args: { slug: v.string() },
   handler: async (ctx, args) => {
@@ -26,8 +26,19 @@ export const getBySlug = query({
       .query("newsArticles")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .first();
-    
-    return article;
+
+    if (!article) return null;
+
+    // Fetch author details if authorId exists
+    let authorDetails = null;
+    if (article.authorId) {
+      authorDetails = await ctx.db.get(article.authorId);
+    }
+
+    return {
+      ...article,
+      authorDetails,
+    };
   },
 });
 
