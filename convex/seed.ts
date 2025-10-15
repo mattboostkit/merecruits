@@ -115,3 +115,39 @@ export const seedData = mutation({
     return { success: true, message: "Database seeded successfully!" };
   },
 });
+
+// Update Helen Thompson to Helen Barham with correct information
+export const updateHelenBarham = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Find Helen Thompson
+    const existingTeam = await ctx.db.query("teamMembers").collect();
+
+    for (const member of existingTeam) {
+      if (member.name === "Helen Thompson") {
+        await ctx.db.delete(member._id);
+      }
+    }
+
+    // Add correct Helen Barham info
+    await ctx.db.insert("teamMembers", {
+      name: "Helen Barham",
+      role: "Lead Consultant & Founder",
+      bio: "Helen founded ME Recruits, sister company to award-winning TN Recruits, bringing over 20 years of recruitment expertise to the ME postcode area. A strong communicator and influencer, Helen is client-focused, consultative and open-minded. Her approach goes beyond matching CVs to job descriptions – she connects people, purpose and potential. When not building successful partnerships, Helen enjoys family life, drives to the coast, holidays in Devon, long walks, fitness, and a glass of red wine.",
+      imageUrl: "",
+      email: "helen@merecruits.com",
+      order: 1,
+      active: true,
+    });
+
+    // Update news articles authors
+    const articles = await ctx.db.query("newsArticles").collect();
+    for (const article of articles) {
+      if (article.author === "Helen Thompson") {
+        await ctx.db.patch(article._id, { author: "Helen Barham" });
+      }
+    }
+
+    return { success: true, message: "Helen's info updated to Helen Barham successfully!" };
+  },
+});
