@@ -265,6 +265,49 @@ export const updateHelenBarham = mutation({
   },
 });
 
+// Remove duplicate jobs based on slug
+export const removeDuplicateJobs = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const allJobs = await ctx.db.query("jobs").collect();
+
+    // Group jobs by slug
+    const jobsBySlug = new Map<string, typeof allJobs>();
+
+    for (const job of allJobs) {
+      if (!jobsBySlug.has(job.slug)) {
+        jobsBySlug.set(job.slug, []);
+      }
+      jobsBySlug.get(job.slug)!.push(job);
+    }
+
+    let duplicatesRemoved = 0;
+
+    // For each slug with duplicates, keep the oldest one and delete the rest
+    for (const [slug, jobs] of jobsBySlug.entries()) {
+      if (jobs.length > 1) {
+        // Sort by creation time (oldest first)
+        jobs.sort((a, b) => a._creationTime - b._creationTime);
+
+        // Delete all except the first (oldest) one
+        for (let i = 1; i < jobs.length; i++) {
+          await ctx.db.delete(jobs[i]._id);
+          duplicatesRemoved++;
+        }
+      }
+    }
+
+    const remainingJobs = await ctx.db.query("jobs").collect();
+
+    return {
+      success: true,
+      message: `Removed ${duplicatesRemoved} duplicate jobs`,
+      duplicatesRemoved,
+      totalJobsRemaining: remainingJobs.length,
+    };
+  },
+});
+
 // Add all 11 team members with complete information
 export const addAllTeamMembers = mutation({
   args: {},
