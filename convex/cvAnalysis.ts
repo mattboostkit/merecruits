@@ -55,7 +55,6 @@ ${cvText}
 Please provide detailed, actionable feedback to help this candidate improve their CV specifically for this role.`,
           },
         ],
-        temperature: 0.7,
         max_completion_tokens: 2000,
       });
 
@@ -115,7 +114,6 @@ QUICK WINS: [2-3 specific improvements that would boost the score]`,
             content: `Please score this CV:\n\n${cvText}`,
           },
         ],
-        temperature: 0.7,
         max_completion_tokens: 500,
       });
 
@@ -200,7 +198,6 @@ ${cvText}
 Please provide a complete rewritten CV that will maximize this candidate's chances of securing an interview for this specific role.`,
           },
         ],
-        temperature: 0.7,
         max_completion_tokens: 3000,
       });
 
