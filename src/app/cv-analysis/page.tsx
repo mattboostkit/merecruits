@@ -40,13 +40,55 @@ export default function CVAnalysisPage() {
     setCvFile(file)
     setError(null)
 
-    // Extract text from file
-    const reader = new FileReader()
-    reader.onload = async (event) => {
-      const text = event.target?.result as string
-      setCvText(text)
+    try {
+      let extractedText = ""
+
+      if (file.type === "application/pdf") {
+        // Handle PDF files
+        const pdfjsLib = await import("pdfjs-dist")
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+
+        const arrayBuffer = await file.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i)
+          const textContent = await page.getTextContent()
+          const pageText = textContent.items.map((item: any) => item.str).join(" ")
+          extractedText += pageText + "\n"
+        }
+      } else if (
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        file.name.endsWith(".docx")
+      ) {
+        // Handle DOCX files
+        const mammoth = await import("mammoth")
+        const arrayBuffer = await file.arrayBuffer()
+        const result = await mammoth.extractRawText({ arrayBuffer })
+        extractedText = result.value
+      } else if (file.type === "application/msword" || file.name.endsWith(".doc")) {
+        // DOC files are tricky in browser - show helpful message
+        setError("Unfortunately, .doc files cannot be processed in the browser. Please save your CV as .docx, .pdf, or .txt format.")
+        return
+      } else if (file.type === "text/plain" || file.name.endsWith(".txt")) {
+        // Handle text files
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          extractedText = event.target?.result as string
+          setCvText(extractedText)
+        }
+        reader.readAsText(file)
+        return
+      } else {
+        setError("Unsupported file type. Please upload a PDF, DOCX, or TXT file.")
+        return
+      }
+
+      setCvText(extractedText)
+    } catch (err) {
+      console.error("File parsing error:", err)
+      setError("Failed to parse file. Please try a different format or paste your CV text directly.")
     }
-    reader.readAsText(file)
   }
 
   const handleAnalyze = async () => {
@@ -261,7 +303,7 @@ export default function CVAnalysisPage() {
                       Step 1: Upload Your CV
                     </CardTitle>
                     <CardDescription>
-                      Upload your CV in text format (.txt) or paste it below
+                      Upload your CV as PDF, DOCX, or TXT, or paste it below
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -271,7 +313,7 @@ export default function CVAnalysisPage() {
                         <Input
                           id="cv-upload"
                           type="file"
-                          accept=".txt"
+                          accept=".txt,.pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                           onChange={handleFileUpload}
                           className="cursor-pointer"
                         />
@@ -280,7 +322,7 @@ export default function CVAnalysisPage() {
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Tip: Copy your CV text into a .txt file before uploading
+                        Accepts PDF, DOCX, or TXT files
                       </p>
                     </div>
 
@@ -563,7 +605,7 @@ export default function CVAnalysisPage() {
                   <CardTitle className="text-center text-lg">Upload Your CV</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center text-sm text-muted-foreground">
-                  Upload your CV as a text file or paste it directly into the form
+                  Upload your CV as PDF, DOCX, or TXT, or paste it directly into the form
                 </CardContent>
               </Card>
 
