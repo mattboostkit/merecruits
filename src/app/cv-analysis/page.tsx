@@ -22,9 +22,12 @@ export default function CVAnalysisPage() {
   const [analysis, setAnalysis] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [useCustomJob, setUseCustomJob] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [improvedCV, setImprovedCV] = useState<string | null>(null)
 
   const jobs = useQuery(api.jobs.list, {})
   const analyzeCVForJob = useAction(api.cvAnalysis.analyzeCVForJob)
+  const generateImprovedCV = useAction(api.cvAnalysis.generateImprovedCV)
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -96,6 +99,76 @@ export default function CVAnalysisPage() {
     } finally {
       setIsAnalyzing(false)
     }
+  }
+
+  const handleGenerateImprovedCV = async () => {
+    setError(null)
+    setImprovedCV(null)
+
+    // Validation
+    if (!cvText) {
+      setError("Please upload your CV first")
+      return
+    }
+
+    if (!useCustomJob && !selectedJobId) {
+      setError("Please select a job you're applying for")
+      return
+    }
+
+    if (useCustomJob && (!customJobTitle || !customJobDescription)) {
+      setError("Please provide both job title and description")
+      return
+    }
+
+    setIsGenerating(true)
+
+    try {
+      let jobTitle = ""
+      let jobDescription = ""
+
+      if (useCustomJob) {
+        jobTitle = customJobTitle
+        jobDescription = customJobDescription
+      } else {
+        const selectedJob = jobs?.find((j) => j._id === selectedJobId)
+        if (selectedJob) {
+          jobTitle = selectedJob.title
+          jobDescription = selectedJob.description
+        }
+      }
+
+      const result = await generateImprovedCV({
+        cvText,
+        jobTitle,
+        jobDescription,
+      })
+
+      if (result.success) {
+        setImprovedCV(result.improvedCV)
+      } else {
+        setError(result.error || "Failed to generate improved CV. Please try again.")
+      }
+    } catch (err) {
+      console.error("Generation error:", err)
+      setError("An unexpected error occurred. Please try again.")
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleDownloadCV = () => {
+    if (!improvedCV) return
+
+    const blob = new Blob([improvedCV], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "Improved_CV.txt"
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -244,24 +317,46 @@ export default function CVAnalysisPage() {
                   </CardContent>
                 </Card>
 
-                <Button
-                  onClick={handleAnalyze}
-                  disabled={isAnalyzing || !cvText}
-                  size="lg"
-                  className="w-full"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
-                      Analyzing Your CV...
-                    </>
-                  ) : (
-                    <>
-                      <Lightbulb className="mr-2 h-5 w-5" />
-                      Get AI-Powered Feedback
-                    </>
-                  )}
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing || isGenerating || !cvText}
+                    size="lg"
+                    className="w-full"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
+                        Analyzing Your CV...
+                      </>
+                    ) : (
+                      <>
+                        <Lightbulb className="mr-2 h-5 w-5" />
+                        Get AI-Powered Feedback
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={handleGenerateImprovedCV}
+                    disabled={isAnalyzing || isGenerating || !cvText}
+                    size="lg"
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
+                        Generating Improved CV...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Make AI-Powered Changes
+                      </>
+                    )}
+                  </Button>
+                </div>
 
                 {error && (
                   <Card className="border-destructive bg-destructive/10">
@@ -279,7 +374,7 @@ export default function CVAnalysisPage() {
               </div>
 
               {/* Results Section */}
-              <div>
+              <div className="space-y-6">
                 <Card className="sticky top-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -342,6 +437,35 @@ export default function CVAnalysisPage() {
                     )}
                   </CardContent>
                 </Card>
+
+                {/* Improved CV Section */}
+                {improvedCV && (
+                  <Card className="border-2 border-primary/30">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-primary" />
+                            Your Improved CV
+                          </CardTitle>
+                          <CardDescription>
+                            Tailored specifically for your target role
+                          </CardDescription>
+                        </div>
+                        <Button onClick={handleDownloadCV} variant="outline" size="sm">
+                          Download CV
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="bg-slate-50 p-6 rounded-lg">
+                        <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+                          {improvedCV}
+                        </pre>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
           </div>

@@ -17,7 +17,7 @@ export const analyzeCVForJob = action({
         apiKey: process.env.OPENAI_API_KEY!,
       });
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-mini-2025-08-07",
         messages: [
           {
             role: "system",
@@ -64,7 +64,7 @@ Please provide detailed, actionable feedback to help this candidate improve thei
       return {
         success: true,
         analysis,
-        model: "gpt-4o-mini",
+        model: "gpt-5-mini-2025-08-07",
       };
     } catch (error) {
       console.error("OpenAI API Error:", error);
@@ -72,6 +72,85 @@ Please provide detailed, actionable feedback to help this candidate improve thei
         success: false,
         error: error instanceof Error ? error.message : "Failed to analyze CV",
         analysis: "",
+      };
+    }
+  },
+});
+
+export const generateImprovedCV = action({
+  args: {
+    cvText: v.string(),
+    jobTitle: v.string(),
+    jobDescription: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { cvText, jobTitle, jobDescription } = args;
+
+    try {
+      // Initialize OpenAI client inside the handler to access environment variables
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY!,
+      });
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-5-mini-2025-08-07",
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert recruitment consultant with 25+ years of experience rewriting CVs for maximum impact. You work for ME Recruits, a specialist recruitment agency in Kent's ME postcode area.
+
+Your task is to take a candidate's CV and rewrite it to be perfectly tailored for a specific job role.
+
+Your rewritten CV should:
+- Maintain all factual information from the original CV
+- Restructure and reword content to align with the job requirements
+- Incorporate relevant keywords from the job description naturally
+- Highlight achievements and skills most relevant to the target role
+- Use strong action verbs and quantifiable results where possible
+- Follow a professional, ATS-friendly format
+- Be concise yet comprehensive (aim for 2 pages maximum)
+- Use UK English spelling and conventions
+
+Format the CV as plain text with clear sections using headers like:
+PROFESSIONAL PROFILE
+KEY SKILLS
+PROFESSIONAL EXPERIENCE
+EDUCATION & QUALIFICATIONS
+
+Do not add fictional information - only enhance and restructure what's already provided.`,
+          },
+          {
+            role: "user",
+            content: `Please rewrite this CV to be perfectly tailored for the following role:
+
+**Target Job Title:** ${jobTitle}
+
+**Job Description:**
+${jobDescription}
+
+**Original CV:**
+${cvText}
+
+Please provide a complete rewritten CV that will maximize this candidate's chances of securing an interview for this specific role.`,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 3000,
+      });
+
+      const improvedCV = completion.choices[0]?.message?.content || "Unable to generate improved CV.";
+
+      return {
+        success: true,
+        improvedCV,
+        model: "gpt-5-mini-2025-08-07",
+      };
+    } catch (error) {
+      console.error("OpenAI API Error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to generate improved CV",
+        improvedCV: "",
       };
     }
   },
