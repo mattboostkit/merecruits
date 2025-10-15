@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,6 +16,7 @@ import { ArrowLeft, Save } from "lucide-react"
 export default function NewJobPage() {
   const router = useRouter()
   const createJob = useMutation(api.jobs.create)
+  const teamMembers = useQuery(api.team.list)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -42,7 +43,6 @@ export default function NewJobPage() {
     "HR & Recruitment",
     "Finance & Accountancy"
   ]
-  const consultants = ["Helen Barham", "Isobel Colman", "Melissa Staveley", "Ellie Waterman"]
 
   const generateSlug = (title: string) => {
     return title
@@ -258,9 +258,9 @@ export default function NewJobPage() {
                       <SelectValue placeholder="Select consultant (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      {consultants.map((consultant) => (
-                        <SelectItem key={consultant} value={consultant}>
-                          {consultant}
+                      {teamMembers?.map((member) => (
+                        <SelectItem key={member._id} value={member.name}>
+                          {member.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
