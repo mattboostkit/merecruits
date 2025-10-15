@@ -31,6 +31,9 @@ export default function EditJobPage() {
     salary: "",
     salaryMin: "",
     salaryMax: "",
+    salaryType: "ANNUAL" as "ANNUAL" | "HOURLY",
+    hourlyRateMin: "",
+    hourlyRateMax: "",
     type: "PERMANENT" as "PERMANENT" | "TEMPORARY" | "CONTRACT",
     category: "",
     consultant: "",
@@ -48,6 +51,9 @@ export default function EditJobPage() {
         salary: job.salary || "",
         salaryMin: job.salaryMin?.toString() || "",
         salaryMax: job.salaryMax?.toString() || "",
+        salaryType: job.salaryType || "ANNUAL",
+        hourlyRateMin: job.hourlyRateMin?.toString() || "",
+        hourlyRateMax: job.hourlyRateMax?.toString() || "",
         type: job.type,
         category: job.category,
         consultant: job.consultant || "",
@@ -98,6 +104,9 @@ export default function EditJobPage() {
         salary: formData.salary || undefined,
         salaryMin: formData.salaryMin ? Number(formData.salaryMin) : undefined,
         salaryMax: formData.salaryMax ? Number(formData.salaryMax) : undefined,
+        salaryType: formData.salaryType,
+        hourlyRateMin: formData.hourlyRateMin ? Number(formData.hourlyRateMin) : undefined,
+        hourlyRateMax: formData.hourlyRateMax ? Number(formData.hourlyRateMax) : undefined,
         type: formData.type,
         category: formData.category,
         consultant: formData.consultant || undefined,
@@ -209,6 +218,20 @@ export default function EditJobPage() {
                 <div className="space-y-4">
                   <Label>Salary Information</Label>
 
+                  {/* Salary Type Toggle */}
+                  <div className="space-y-2">
+                    <Label htmlFor="salaryType">Salary Type</Label>
+                    <Select value={formData.salaryType} onValueChange={(value: "ANNUAL" | "HOURLY") => setFormData({ ...formData, salaryType: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ANNUAL">Annual Salary</SelectItem>
+                        <SelectItem value="HOURLY">Hourly Rate</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Salary Text */}
                   <div className="space-y-2">
                     <Label htmlFor="salary" className="text-sm text-muted-foreground">
@@ -218,37 +241,68 @@ export default function EditJobPage() {
                       id="salary"
                       value={formData.salary}
                       onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-                      placeholder="£35,000 - £45,000"
+                      placeholder={formData.salaryType === "HOURLY" ? "£15.50 - £18.00 per hour" : "£35,000 - £45,000"}
                     />
                   </div>
 
-                  {/* OR Salary Range */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="salaryMin" className="text-sm text-muted-foreground">
-                        Min Salary (£)
-                      </Label>
-                      <Input
-                        id="salaryMin"
-                        type="number"
-                        value={formData.salaryMin}
-                        onChange={(e) => setFormData({ ...formData, salaryMin: e.target.value })}
-                        placeholder="35000"
-                      />
+                  {/* Conditional: Annual Salary Range OR Hourly Rate Range */}
+                  {formData.salaryType === "ANNUAL" ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="salaryMin" className="text-sm text-muted-foreground">
+                          Min Annual Salary (£)
+                        </Label>
+                        <Input
+                          id="salaryMin"
+                          type="number"
+                          value={formData.salaryMin}
+                          onChange={(e) => setFormData({ ...formData, salaryMin: e.target.value })}
+                          placeholder="35000"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="salaryMax" className="text-sm text-muted-foreground">
+                          Max Annual Salary (£)
+                        </Label>
+                        <Input
+                          id="salaryMax"
+                          type="number"
+                          value={formData.salaryMax}
+                          onChange={(e) => setFormData({ ...formData, salaryMax: e.target.value })}
+                          placeholder="45000"
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="salaryMax" className="text-sm text-muted-foreground">
-                        Max Salary (£)
-                      </Label>
-                      <Input
-                        id="salaryMax"
-                        type="number"
-                        value={formData.salaryMax}
-                        onChange={(e) => setFormData({ ...formData, salaryMax: e.target.value })}
-                        placeholder="45000"
-                      />
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="hourlyRateMin" className="text-sm text-muted-foreground">
+                          Min Hourly Rate (£)
+                        </Label>
+                        <Input
+                          id="hourlyRateMin"
+                          type="number"
+                          step="0.01"
+                          value={formData.hourlyRateMin}
+                          onChange={(e) => setFormData({ ...formData, hourlyRateMin: e.target.value })}
+                          placeholder="15.50"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="hourlyRateMax" className="text-sm text-muted-foreground">
+                          Max Hourly Rate (£)
+                        </Label>
+                        <Input
+                          id="hourlyRateMax"
+                          type="number"
+                          step="0.01"
+                          value={formData.hourlyRateMax}
+                          onChange={(e) => setFormData({ ...formData, hourlyRateMax: e.target.value })}
+                          placeholder="18.00"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Job Type */}

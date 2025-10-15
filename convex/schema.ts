@@ -11,6 +11,10 @@ export default defineSchema({
     salary: v.optional(v.string()),
     salaryMin: v.optional(v.number()),
     salaryMax: v.optional(v.number()),
+    // New fields for hourly rates
+    salaryType: v.optional(v.union(v.literal("ANNUAL"), v.literal("HOURLY"))), // Default to ANNUAL if not specified
+    hourlyRateMin: v.optional(v.number()),
+    hourlyRateMax: v.optional(v.number()),
     type: v.union(v.literal("PERMANENT"), v.literal("TEMPORARY"), v.literal("CONTRACT")),
     category: v.string(), // This is the "Sector" field
     consultant: v.optional(v.string()), // Consultant name (e.g., "Helen Barham", "Melissa Staveley")

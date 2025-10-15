@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Briefcase, MapPin, Clock, Calendar, Share2, Upload } from "lucide-react"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
-import { use } from "react"
+import { use, useState } from "react"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -22,6 +22,7 @@ export default function JobDetailPage({ params }: Props) {
     api.jobs.list,
     job ? { category: job.category } : "skip"
   )
+  const [shareTooltip, setShareTooltip] = useState("Share this job")
 
   if (job === undefined) {
     return (
@@ -39,6 +40,59 @@ export default function JobDetailPage({ params }: Props) {
   const filteredRelatedJobs = relatedJobs
     ?.filter((j) => j._id !== job._id)
     .slice(0, 3) || []
+
+  // Format salary display based on type
+  const formatSalary = () => {
+    if (job.salaryType === "HOURLY") {
+      if (job.hourlyRateMin && job.hourlyRateMax) {
+        return job.hourlyRateMin === job.hourlyRateMax
+          ? `£${job.hourlyRateMin.toFixed(2)}/hour`
+          : `£${job.hourlyRateMin.toFixed(2)} - £${job.hourlyRateMax.toFixed(2)}/hour`
+      }
+      if (job.hourlyRateMin) return `£${job.hourlyRateMin.toFixed(2)}/hour`
+      if (job.salary) return job.salary
+      return "Competitive"
+    } else {
+      // Annual salary (default)
+      if (job.salaryMin && job.salaryMax) {
+        return job.salaryMin === job.salaryMax
+          ? `£${job.salaryMin.toLocaleString()}`
+          : `£${job.salaryMin.toLocaleString()} - £${job.salaryMax.toLocaleString()}`
+      }
+      if (job.salary) return job.salary
+      return "Competitive"
+    }
+  }
+
+  // Share functionality using Web Share API with fallback to clipboard
+  const handleShare = async () => {
+    const shareData = {
+      title: `${job.title} at ME Recruits`,
+      text: `Check out this job opportunity: ${job.title} in ${job.location}`,
+      url: window.location.href,
+    }
+
+    try {
+      // Try Web Share API first (mobile devices)
+      if (navigator.share) {
+        await navigator.share(shareData)
+        setShareTooltip("Shared!")
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(window.location.href)
+        setShareTooltip("Link copied!")
+      }
+
+      // Reset tooltip after 2 seconds
+      setTimeout(() => setShareTooltip("Share this job"), 2000)
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        console.error('Error sharing:', error)
+        setShareTooltip("Unable to share")
+        setTimeout(() => setShareTooltip("Share this job"), 2000)
+      }
+    }
+  }
 
   return (
     <div className="flex flex-col">
@@ -67,12 +121,10 @@ export default function JobDetailPage({ params }: Props) {
                 <MapPin className="h-5 w-5" />
                 <span>{job.location}</span>
               </div>
-              {job.salary && (
-                <div className="flex items-center gap-2">
-                  <Briefcase className="h-5 w-5" />
-                  <span className="font-semibold">{job.salary}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                <span className="font-semibold">{formatSalary()}</span>
+              </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
                 <span>
@@ -123,12 +175,12 @@ export default function JobDetailPage({ params }: Props) {
                       <p className="text-sm text-muted-foreground mb-1">Category</p>
                       <p className="font-semibold">{job.category}</p>
                     </div>
-                    {job.salary && (
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Salary</p>
-                        <p className="font-semibold text-primary">{job.salary}</p>
-                      </div>
-                    )}
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {job.salaryType === "HOURLY" ? "Hourly Rate" : "Salary"}
+                      </p>
+                      <p className="font-semibold text-primary">{formatSalary()}</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -156,8 +208,8 @@ export default function JobDetailPage({ params }: Props) {
                   </Button>
                   <Separator />
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Share this job</span>
-                    <Button variant="ghost" size="sm">
+                    <span className="text-muted-foreground">{shareTooltip}</span>
+                    <Button variant="ghost" size="sm" onClick={handleShare}>
                       <Share2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -225,11 +277,20 @@ export default function JobDetailPage({ params }: Props) {
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
                         {relatedJob.description.substring(0, 100)}...
                       </p>
-                      {relatedJob.salary && (
-                        <p className="text-sm font-semibold text-primary mb-4">
-                          {relatedJob.salary}
-                        </p>
-                      )}
+                      <p className="text-sm font-semibold text-primary mb-4">
+                        {relatedJob.salaryType === "HOURLY"
+                          ? relatedJob.hourlyRateMin && relatedJob.hourlyRateMax
+                            ? relatedJob.hourlyRateMin === relatedJob.hourlyRateMax
+                              ? `£${relatedJob.hourlyRateMin.toFixed(2)}/hour`
+                              : `£${relatedJob.hourlyRateMin.toFixed(2)} - £${relatedJob.hourlyRateMax.toFixed(2)}/hour`
+                            : relatedJob.salary || "Competitive"
+                          : relatedJob.salaryMin && relatedJob.salaryMax
+                            ? relatedJob.salaryMin === relatedJob.salaryMax
+                              ? `£${relatedJob.salaryMin.toLocaleString()}`
+                              : `£${relatedJob.salaryMin.toLocaleString()} - £${relatedJob.salaryMax.toLocaleString()}`
+                            : relatedJob.salary || "Competitive"
+                        }
+                      </p>
                       <Button asChild variant="outline" className="w-full">
                         <Link href={`/need-a-job/job-vacancies/${relatedJob.slug}`}>
                           View Details
