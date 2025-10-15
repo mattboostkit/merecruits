@@ -159,10 +159,16 @@ export function Footer() {
         <Separator className="my-8" />
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row md:items-center gap-2">
             <p>&copy; {currentYear} ME Recruits. All rights reserved.</p>
             <span className="hidden md:inline">|</span>
-            <p className="hidden md:inline">TN Recruits Limited - Company No. 9293806</p>
+            <p className="hidden md:inline">Trading as TN Recruits Limited</p>
+            <span className="hidden md:inline">|</span>
+            <p className="hidden md:inline">Company No. 9293806</p>
+            <span className="hidden md:inline">|</span>
+            <p className="hidden md:inline">VAT No. 199331865</p>
+            <span className="hidden md:inline">|</span>
+            <p className="hidden md:inline text-xs">Registered: 1 The Old Stables, Eridge Park, Tunbridge Wells, TN3 9JT</p>
           </div>
           <div className="flex gap-4">
             <Link href="/privacy-policy" className="hover:text-primary transition-colors">
