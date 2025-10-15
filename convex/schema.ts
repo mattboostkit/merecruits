@@ -33,6 +33,26 @@ export default defineSchema({
     fileName: v.string(),
     jobId: v.optional(v.id("jobs")),
     message: v.optional(v.string()),
+    // AI-parsed data (populated after CV is processed)
+    aiParsed: v.optional(v.object({
+      fullName: v.string(),
+      email: v.optional(v.string()),
+      phone: v.optional(v.string()),
+      summary: v.string(),
+      skills: v.array(v.string()),
+      experience: v.array(v.object({
+        jobTitle: v.string(),
+        company: v.string(),
+        duration: v.string(),
+        description: v.optional(v.string()),
+      })),
+      education: v.array(v.object({
+        degree: v.string(),
+        institution: v.string(),
+        year: v.optional(v.string()),
+      })),
+      yearsOfExperience: v.number(),
+    })),
   })
     .index("by_email", ["email"])
     .index("by_job", ["jobId"]),

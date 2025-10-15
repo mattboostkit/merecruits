@@ -123,7 +123,26 @@ function UploadCVContent() {
     setIsSubmitting(true)
 
     try {
-      // TODO: Implement actual file upload to storage (Convex file storage or S3)
+      // Step 1: Get upload URL from Convex
+      const uploadUrl = await fetch("/api/generate-upload-url", {
+        method: "POST",
+      })
+      const { url } = await uploadUrl.json()
+
+      // Step 2: Upload file to Convex storage
+      const uploadResponse = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error("File upload failed")
+      }
+
+      const { storageId } = await uploadResponse.json()
+
+      // Step 3: Submit CV data with storage ID
       await submitCV({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -132,6 +151,7 @@ function UploadCVContent() {
         jobReference: data.jobReference,
         coverLetter: data.coverLetter,
         fileName: file.name,
+        storageId: storageId,
       })
 
       setSubmitSuccess(true)
