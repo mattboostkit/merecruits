@@ -56,9 +56,16 @@ export default function NewJobPage() {
     setIsSubmitting(true)
 
     try {
+      // Validate required fields
+      if (!formData.title || !formData.location || !formData.description || !formData.category) {
+        alert("Please fill in all required fields (Title, Location, Description, Sector)")
+        setIsSubmitting(false)
+        return
+      }
+
       const slug = generateSlug(`${formData.title}-${formData.location}`)
 
-      await createJob({
+      console.log("Creating job with data:", {
         title: formData.title,
         slug: slug,
         location: formData.location,
@@ -73,10 +80,26 @@ export default function NewJobPage() {
         featured: formData.featured,
       })
 
+      const jobId = await createJob({
+        title: formData.title,
+        slug: slug,
+        location: formData.location,
+        description: formData.description,
+        salary: formData.salary || undefined,
+        salaryMin: formData.salaryMin ? Number(formData.salaryMin) : undefined,
+        salaryMax: formData.salaryMax ? Number(formData.salaryMax) : undefined,
+        type: formData.type,
+        category: formData.category,
+        consultant: formData.consultant || undefined,
+        status: formData.status,
+        featured: formData.featured,
+      })
+
+      console.log("Job created successfully with ID:", jobId)
       router.push("/admin/jobs")
     } catch (error) {
       console.error("Error creating job:", error)
-      alert("Failed to create job. Please try again.")
+      alert(`Failed to create job: ${error instanceof Error ? error.message : "Unknown error"}. Please try again.`)
     } finally {
       setIsSubmitting(false)
     }
