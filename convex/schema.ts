@@ -68,12 +68,14 @@ export default defineSchema({
     excerpt: v.string(),
     content: v.string(),
     imageUrl: v.optional(v.string()),
-    author: v.string(),
+    author: v.string(), // Author name (for backward compatibility)
+    authorId: v.optional(v.id("teamMembers")), // Link to team member for photo/bio
     published: v.boolean(),
     publishedAt: v.optional(v.number()),
   })
     .index("by_slug", ["slug"])
-    .index("by_published", ["published"]),
+    .index("by_published", ["published"])
+    .index("by_author", ["authorId"]),
 
   // Team member model
   teamMembers: defineTable({

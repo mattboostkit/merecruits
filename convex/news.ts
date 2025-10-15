@@ -82,6 +82,7 @@ export const create = mutation({
     content: v.string(),
     imageUrl: v.optional(v.string()),
     author: v.string(),
+    authorId: v.optional(v.id("teamMembers")),
     published: v.boolean(),
   },
   handler: async (ctx, args) => {
@@ -103,6 +104,7 @@ export const update = mutation({
     content: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     author: v.optional(v.string()),
+    authorId: v.optional(v.id("teamMembers")),
     published: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {

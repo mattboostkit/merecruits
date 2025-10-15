@@ -3,19 +3,22 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { Id } from "convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Save, FileText, Sparkles } from "lucide-react"
 
 export default function NewArticlePage() {
   const router = useRouter()
   const createArticle = useMutation(api.news.create)
+  const teamMembers = useQuery(api.team.list)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -25,6 +28,7 @@ export default function NewArticlePage() {
     content: "",
     imageUrl: "",
     author: "",
+    authorId: undefined as Id<"teamMembers"> | undefined,
     published: false,
   })
 
@@ -204,6 +208,7 @@ Wrap up the interview with final thoughts and how readers can connect with the i
         content: formData.content,
         imageUrl: formData.imageUrl || undefined,
         author: formData.author,
+        authorId: formData.authorId,
         published: formData.published,
       })
 
@@ -270,14 +275,41 @@ Wrap up the interview with final thoughts and how readers can connect with the i
 
                 {/* Author */}
                 <div className="space-y-2">
-                  <Label htmlFor="author">Author Name *</Label>
-                  <Input
-                    id="author"
-                    value={formData.author}
-                    onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                    placeholder="e.g., Helen Barham"
-                    required
-                  />
+                  <Label htmlFor="author">Author *</Label>
+                  <Select
+                    value={formData.authorId}
+                    onValueChange={(value) => {
+                      const selectedMember = teamMembers?.find(m => m._id === value)
+                      setFormData({
+                        ...formData,
+                        authorId: value as Id<"teamMembers">,
+                        author: selectedMember?.name || ""
+                      })
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teamMembers?.filter(m => m.active).map((member) => (
+                        <SelectItem key={member._id} value={member._id}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold overflow-hidden">
+                              {member.imageUrl ? (
+                                <img src={member.imageUrl} alt={member.name} className="w-full h-full object-cover" />
+                              ) : (
+                                member.name.split(' ').map(n => n[0]).join('')
+                              )}
+                            </div>
+                            {member.name} - {member.role}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    The author's photo and bio will be pulled from the team section
+                  </p>
                 </div>
 
                 {/* Excerpt */}
