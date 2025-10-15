@@ -78,6 +78,7 @@ export default defineSchema({
     bio: v.string(),
     imageUrl: v.string(),
     email: v.string(),
+    linkedInUrl: v.optional(v.string()),
     order: v.number(),
     active: v.boolean(),
   })

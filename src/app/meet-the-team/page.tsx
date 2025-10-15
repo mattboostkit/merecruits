@@ -79,12 +79,14 @@ export default function MeetTheTeamPage() {
                             Email
                           </a>
                         </Button>
-                        <Button asChild variant="ghost" size="sm" className="flex-1">
-                          <a href="#" className="text-muted-foreground">
-                            <Linkedin className="h-4 w-4 mr-2" />
-                            LinkedIn
-                          </a>
-                        </Button>
+                        {member.linkedInUrl && (
+                          <Button asChild variant="ghost" size="sm" className="flex-1">
+                            <a href={member.linkedInUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground">
+                              <Linkedin className="h-4 w-4 mr-2" />
+                              LinkedIn
+                            </a>
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

@@ -308,6 +308,47 @@ export const removeDuplicateJobs = mutation({
   },
 });
 
+// Update all team members with LinkedIn URLs
+export const updateTeamLinkedIn = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const teamMembers = await ctx.db.query("teamMembers").collect();
+
+    const linkedInUpdates = [
+      { name: "Neil Simmons", linkedInUrl: "https://www.linkedin.com/in/neil-simmons-b2721b15/" },
+      { name: "Ellie Waterman", linkedInUrl: "https://www.linkedin.com/in/ellie-snuggs/" },
+      { name: "Helen Barham", linkedInUrl: "https://www.linkedin.com/in/helen-barham-779394157/" },
+      { name: "Kate Byrom", linkedInUrl: "https://www.linkedin.com/in/kate-byrom-98a07a23b/" },
+      { name: "Sarah Bysouth", linkedInUrl: "https://www.linkedin.com/in/sarah-bysouth-029177125/" },
+      { name: "Melissa Staveley", linkedInUrl: "https://www.linkedin.com/in/melissa-staveley-22202044/" },
+      { name: "Jo Strong", linkedInUrl: "https://www.linkedin.com/in/joannastrong/", newName: "Jo Marsden-Strong" },
+      { name: "Rachel Fisher", linkedInUrl: "https://www.linkedin.com/in/rachel-fisher-7b66a93/" },
+      { name: "Emma Moss", linkedInUrl: "https://www.linkedin.com/in/emmamosslegal/" },
+      { name: "Isobel Colman", linkedInUrl: "https://www.linkedin.com/in/izzycolman/" },
+    ];
+
+    let updatedCount = 0;
+
+    for (const update of linkedInUpdates) {
+      const member = teamMembers.find(m => m.name === update.name);
+      if (member) {
+        const patches: any = { linkedInUrl: update.linkedInUrl };
+        if (update.newName) {
+          patches.name = update.newName;
+        }
+        await ctx.db.patch(member._id, patches);
+        updatedCount++;
+      }
+    }
+
+    return {
+      success: true,
+      message: `Updated ${updatedCount} team members with LinkedIn URLs`,
+      updatedCount,
+    };
+  },
+});
+
 // Add all 11 team members with complete information
 export const addAllTeamMembers = mutation({
   args: {},
