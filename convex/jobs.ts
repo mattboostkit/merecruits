@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 
 // Get all active jobs with optional filters
 export const list = query({
@@ -63,10 +63,92 @@ export const getFeatured = query({
       .query("jobs")
       .withIndex("by_featured", (q) => q.eq("featured", true))
       .collect();
-    
+
     return jobs
       .filter((job) => job.status === "ACTIVE")
       .sort((a, b) => b._creationTime - a._creationTime)
       .slice(0, 6);
+  },
+});
+
+// Get ALL jobs (including drafts and closed) - for admin use
+export const listAll = query({
+  args: {},
+  handler: async (ctx) => {
+    const jobs = await ctx.db.query("jobs").collect();
+    return jobs.sort((a, b) => b._creationTime - a._creationTime);
+  },
+});
+
+// Mutation to create a new job
+export const create = mutation({
+  args: {
+    title: v.string(),
+    slug: v.string(),
+    location: v.string(),
+    description: v.string(),
+    salary: v.optional(v.string()),
+    salaryMin: v.optional(v.number()),
+    salaryMax: v.optional(v.number()),
+    type: v.union(v.literal("PERMANENT"), v.literal("TEMPORARY"), v.literal("CONTRACT")),
+    category: v.string(),
+    consultant: v.optional(v.string()),
+    status: v.union(v.literal("ACTIVE"), v.literal("DRAFT"), v.literal("CLOSED")),
+    featured: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const jobId = await ctx.db.insert("jobs", args);
+    return jobId;
+  },
+});
+
+// Mutation to update an existing job
+export const update = mutation({
+  args: {
+    id: v.id("jobs"),
+    title: v.optional(v.string()),
+    slug: v.optional(v.string()),
+    location: v.optional(v.string()),
+    description: v.optional(v.string()),
+    salary: v.optional(v.string()),
+    salaryMin: v.optional(v.number()),
+    salaryMax: v.optional(v.number()),
+    type: v.optional(v.union(v.literal("PERMANENT"), v.literal("TEMPORARY"), v.literal("CONTRACT"))),
+    category: v.optional(v.string()),
+    consultant: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("ACTIVE"), v.literal("DRAFT"), v.literal("CLOSED"))),
+    featured: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    await ctx.db.patch(id, updates);
+    return id;
+  },
+});
+
+// Mutation to delete a job permanently
+export const remove = mutation({
+  args: { id: v.id("jobs") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+    return { success: true };
+  },
+});
+
+// Mutation to close a job (mark as CLOSED instead of deleting)
+export const close = mutation({
+  args: { id: v.id("jobs") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, { status: "CLOSED" });
+    return { success: true };
+  },
+});
+
+// Mutation to reopen a closed job
+export const reopen = mutation({
+  args: { id: v.id("jobs") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, { status: "ACTIVE" });
+    return { success: true };
   },
 });
