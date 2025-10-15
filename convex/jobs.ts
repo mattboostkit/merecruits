@@ -50,7 +50,16 @@ export const getBySlug = query({
       .query("jobs")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .first();
-    
+
+    return job;
+  },
+});
+
+// Get a single job by ID (for admin editing)
+export const getById = query({
+  args: { id: v.id("jobs") },
+  handler: async (ctx, args) => {
+    const job = await ctx.db.get(args.id);
     return job;
   },
 });
