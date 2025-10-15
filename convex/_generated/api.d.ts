@@ -16,6 +16,7 @@ import type {
 import type * as aiCVParser from "../aiCVParser.js";
 import type * as cleanupTeam from "../cleanupTeam.js";
 import type * as contact from "../contact.js";
+import type * as cvAnalysis from "../cvAnalysis.js";
 import type * as cvUploads from "../cvUploads.js";
 import type * as jobs from "../jobs.js";
 import type * as news from "../news.js";
@@ -35,6 +36,7 @@ declare const fullApi: ApiFromModules<{
   aiCVParser: typeof aiCVParser;
   cleanupTeam: typeof cleanupTeam;
   contact: typeof contact;
+  cvAnalysis: typeof cvAnalysis;
   cvUploads: typeof cvUploads;
   jobs: typeof jobs;
   news: typeof news;

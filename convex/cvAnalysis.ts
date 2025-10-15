@@ -2,10 +2,6 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
-
 export const analyzeCVForJob = action({
   args: {
     cvText: v.string(),
@@ -16,6 +12,10 @@ export const analyzeCVForJob = action({
     const { cvText, jobTitle, jobDescription } = args;
 
     try {
+      // Initialize OpenAI client inside the handler to access environment variables
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY!,
+      });
       const completion = await openai.chat.completions.create({
         model: "gpt-5-mini-2025-08-07",
         messages: [
