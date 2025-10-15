@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Briefcase, FileText, Users, Mail } from "lucide-react"
+import { Briefcase, FileText, Users, Mail, Newspaper } from "lucide-react"
 
 export default function AdminDashboard() {
   return (
@@ -87,6 +87,7 @@ export default function AdminDashboard() {
             <TabsList>
               <TabsTrigger value="jobs">Jobs</TabsTrigger>
               <TabsTrigger value="cvs">CV Submissions</TabsTrigger>
+              <TabsTrigger value="news">News & Insights</TabsTrigger>
               <TabsTrigger value="team">Team</TabsTrigger>
               <TabsTrigger value="contacts">Contacts</TabsTrigger>
             </TabsList>
@@ -132,6 +133,33 @@ export default function AdminDashboard() {
                     </p>
                     <Button asChild>
                       <Link href="/admin/cvs">View All CVs</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="news">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>News & Insights</CardTitle>
+                      <CardDescription>Manage blog articles and news posts</CardDescription>
+                    </div>
+                    <Button asChild>
+                      <Link href="/admin/news/new">Add New Article</Link>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-12">
+                    <Newspaper className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-4">
+                      Create and manage blog posts and news articles
+                    </p>
+                    <Button asChild>
+                      <Link href="/admin/news">View All Articles</Link>
                     </Button>
                   </div>
                 </CardContent>

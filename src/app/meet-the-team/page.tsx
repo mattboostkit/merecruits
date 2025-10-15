@@ -77,7 +77,7 @@ export default function MeetTheTeamPage() {
                       <p className="text-primary font-semibold text-sm">{member.role}</p>
                     </CardHeader>
                     <CardContent className="flex-1">
-                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-6">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         {member.bio}
                       </p>
                     </CardContent>
