@@ -5,8 +5,21 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Briefcase, FileText, Users, Mail, Newspaper } from "lucide-react"
+import { useQuery } from "convex/react"
+import { api } from "convex/_generated/api"
 
 export default function AdminDashboard() {
+  // Fetch real data from Convex
+  const allJobs = useQuery(api.jobs.listAll)
+  const cvSubmissions = useQuery(api.cvUploads.listAll)
+  const teamMembers = useQuery(api.team.list)
+  const contactSubmissions = useQuery(api.contact.listAll)
+
+  // Calculate stats
+  const activeJobsCount = allJobs?.filter(job => job.status === "ACTIVE").length ?? 0
+  const cvCount = cvSubmissions?.length ?? 0
+  const teamCount = teamMembers?.filter(member => member.active).length ?? 0
+  const contactCount = contactSubmissions?.length ?? 0
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Header */}
@@ -43,7 +56,7 @@ export default function AdminDashboard() {
                 <Briefcase className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">10</div>
+                <div className="text-2xl font-bold">{activeJobsCount}</div>
                 <p className="text-xs text-muted-foreground">Currently live</p>
               </CardContent>
             </Card>
@@ -54,8 +67,8 @@ export default function AdminDashboard() {
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">23</div>
-                <p className="text-xs text-muted-foreground">This week</p>
+                <div className="text-2xl font-bold">{cvCount}</div>
+                <p className="text-xs text-muted-foreground">Total submissions</p>
               </CardContent>
             </Card>
 
@@ -65,7 +78,7 @@ export default function AdminDashboard() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">4</div>
+                <div className="text-2xl font-bold">{teamCount}</div>
                 <p className="text-xs text-muted-foreground">Active consultants</p>
               </CardContent>
             </Card>
@@ -76,8 +89,8 @@ export default function AdminDashboard() {
                 <Mail className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">8</div>
-                <p className="text-xs text-muted-foreground">Pending</p>
+                <div className="text-2xl font-bold">{contactCount}</div>
+                <p className="text-xs text-muted-foreground">Total received</p>
               </CardContent>
             </Card>
           </div>

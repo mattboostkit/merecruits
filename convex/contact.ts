@@ -1,5 +1,14 @@
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
+
+// Query to list all contact submissions - for admin use
+export const listAll = query({
+  args: {},
+  handler: async (ctx) => {
+    const submissions = await ctx.db.query("contactSubmissions").collect();
+    return submissions.sort((a, b) => b._creationTime - a._creationTime);
+  },
+});
 
 // Submit a contact form
 export const submit = mutation({
