@@ -14,9 +14,20 @@ export default function AdminDashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-display font-bold">ME Recruits Admin</h1>
-            <Button asChild variant="outline">
-              <Link href="/">View Website</Link>
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button asChild variant="outline">
+                <Link href="/">View Website</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={async () => {
+                  await fetch("/api/admin/auth", { method: "DELETE" })
+                  window.location.href = "/admin/login"
+                }}
+              >
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>
