@@ -47,4 +47,7 @@ next-env.d.ts
 /src/generated/prisma
 /src/lib/prisma.ts
 
+# Convex generated files
+/convex/_generated/
+
 .vercel
