@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Id } from "convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowLeft, Save } from "lucide-react"
 
 export default function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
+  const { tenantId } = useTenant()
   const router = useRouter()
   const [articleId, setArticleId] = useState<Id<"newsArticles"> | null>(null)
 
@@ -27,7 +29,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
 
   const article = useQuery(
     api.news.getById,
-    articleId ? { id: articleId } : "skip"
+    articleId ? { id: articleId, tenantId } : "skip"
   )
   const updateArticle = useMutation(api.news.update)
 

@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -26,8 +27,9 @@ import { ArrowLeft, MoreVertical, Plus, Search, Eye, Edit, Trash } from "lucide-
 import { Id } from "convex/_generated/dataModel"
 
 export default function AdminNewsPage() {
+  const { tenantId } = useTenant()
   const [searchTerm, setSearchTerm] = useState("")
-  const articles = useQuery(api.news.listAll)
+  const articles = useQuery(api.news.listAll, { tenantId })
   const deleteArticle = useMutation(api.news.remove)
 
   const filteredArticles = articles?.filter((article) =>

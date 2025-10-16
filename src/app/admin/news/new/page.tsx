@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Id } from "convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,9 +17,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Save, FileText, Sparkles } from "lucide-react"
 
 export default function NewArticlePage() {
+  const { tenantId } = useTenant()
   const router = useRouter()
   const createArticle = useMutation(api.news.create)
-  const teamMembers = useQuery(api.team.list)
+  const teamMembers = useQuery(api.team.list, { tenantId })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -202,6 +204,7 @@ Wrap up the interview with final thoughts and how readers can connect with the i
       const finalSlug = formData.slug || generateSlug(formData.title)
 
       await createArticle({
+        tenantId,
         title: formData.title,
         slug: finalSlug,
         excerpt: formData.excerpt,

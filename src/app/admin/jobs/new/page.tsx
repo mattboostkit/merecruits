@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,9 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Save } from "lucide-react"
 
 export default function NewJobPage() {
+  const { tenantId } = useTenant()
   const router = useRouter()
   const createJob = useMutation(api.jobs.create)
-  const teamMembers = useQuery(api.team.list)
+  const teamMembers = useQuery(api.team.list, { tenantId })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -84,6 +86,7 @@ export default function NewJobPage() {
       })
 
       const jobId = await createJob({
+        tenantId,
         title: formData.title,
         slug: slug,
         location: formData.location,

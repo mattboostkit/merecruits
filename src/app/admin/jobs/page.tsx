@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -26,8 +27,9 @@ import { ArrowLeft, MoreVertical, Plus, Search, Eye, Edit, Trash, XCircle, Check
 import { Id } from "convex/_generated/dataModel"
 
 export default function AdminJobsPage() {
+  const { tenantId } = useTenant()
   const [searchTerm, setSearchTerm] = useState("")
-  const jobs = useQuery(api.jobs.listAll)
+  const jobs = useQuery(api.jobs.listAll, { tenantId })
   const closeJob = useMutation(api.jobs.close)
   const reopenJob = useMutation(api.jobs.reopen)
   const deleteJob = useMutation(api.jobs.remove)

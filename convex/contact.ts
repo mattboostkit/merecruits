@@ -3,9 +3,12 @@ import { mutation, query } from "./_generated/server";
 
 // Query to list all contact submissions - for admin use
 export const listAll = query({
-  args: {},
-  handler: async (ctx) => {
-    const submissions = await ctx.db.query("contactSubmissions").collect();
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    const submissions = await ctx.db
+      .query("contactSubmissions")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
     return submissions.sort((a, b) => b._creationTime - a._creationTime);
   },
 });
@@ -13,6 +16,7 @@ export const listAll = query({
 // Submit a contact form
 export const submit = mutation({
   args: {
+    tenantId: v.id("tenants"),
     name: v.string(),
     email: v.string(),
     phone: v.optional(v.string()),
@@ -22,6 +26,7 @@ export const submit = mutation({
   },
   handler: async (ctx, args) => {
     const submissionId = await ctx.db.insert("contactSubmissions", {
+      tenantId: args.tenantId,
       name: args.name,
       email: args.email,
       phone: args.phone,

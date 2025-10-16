@@ -31,8 +31,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Initialize Convex client for server-side usage
     const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
 
+    // Get ME Recruits tenant
+    const tenant = await convex.query(api.tenants.getBySubdomain, { subdomain: "merecruits" })
+    if (!tenant) {
+      throw new Error("ME Recruits tenant not found")
+    }
+
     // Dynamic job pages
-    const jobs = await convex.query(api.jobs.list, {})
+    const jobs = await convex.query(api.jobs.list, { tenantId: tenant._id })
 
     const jobPages = jobs.map((job) => ({
       url: `${baseUrl}/need-a-job/job-vacancies/${job.slug}`,
@@ -42,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
 
     // Dynamic news pages
-    const articles = await convex.query(api.news.list, {})
+    const articles = await convex.query(api.news.list, { tenantId: tenant._id })
 
     const newsPages = articles.map((article) => ({
       url: `${baseUrl}/news/${article.slug}`,

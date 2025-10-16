@@ -8,10 +8,12 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Briefcase, Users, TrendingUp, Award, MapPin, Clock, Calendar, Star, CheckCircle2, Heart, Target, Sparkles, FileText } from "lucide-react"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 
 export default function HomePage() {
-  const featuredJobs = useQuery(api.jobs.getFeatured)
-  const latestNews = useQuery(api.news.list)
+  const { tenantId } = useTenant()
+  const featuredJobs = useQuery(api.jobs.getFeatured, { tenantId })
+  const latestNews = useQuery(api.news.list, { tenantId })
 
   return (
     <div className="flex flex-col">

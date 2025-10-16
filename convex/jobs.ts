@@ -4,6 +4,7 @@ import { query, mutation } from "./_generated/server";
 // Get all active jobs with optional filters
 export const list = query({
   args: {
+    tenantId: v.id("tenants"),
     search: v.optional(v.string()),
     location: v.optional(v.string()),
     type: v.optional(v.string()),
@@ -12,7 +13,7 @@ export const list = query({
   handler: async (ctx, args) => {
     let jobs = await ctx.db
       .query("jobs")
-      .withIndex("by_status", (q) => q.eq("status", "ACTIVE"))
+      .withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", "ACTIVE"))
       .collect();
 
     // Apply filters
@@ -44,11 +45,11 @@ export const list = query({
 
 // Get a single job by slug
 export const getBySlug = query({
-  args: { slug: v.string() },
+  args: { tenantId: v.id("tenants"), slug: v.string() },
   handler: async (ctx, args) => {
     const job = await ctx.db
       .query("jobs")
-      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .withIndex("by_tenant_slug", (q) => q.eq("tenantId", args.tenantId).eq("slug", args.slug))
       .first();
 
     return job;
@@ -57,24 +58,28 @@ export const getBySlug = query({
 
 // Get a single job by ID (for admin editing)
 export const getById = query({
-  args: { id: v.id("jobs") },
+  args: { id: v.id("jobs"), tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
     const job = await ctx.db.get(args.id);
+    // Verify the job belongs to this tenant
+    if (job && job.tenantId !== args.tenantId) {
+      return null;
+    }
     return job;
   },
 });
 
 // Get featured jobs
 export const getFeatured = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
     const jobs = await ctx.db
       .query("jobs")
-      .withIndex("by_featured", (q) => q.eq("featured", true))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .collect();
 
     return jobs
-      .filter((job) => job.status === "ACTIVE")
+      .filter((job) => job.status === "ACTIVE" && job.featured)
       .sort((a, b) => b._creationTime - a._creationTime)
       .slice(0, 6);
   },
@@ -82,9 +87,12 @@ export const getFeatured = query({
 
 // Get ALL jobs (including drafts and closed) - for admin use
 export const listAll = query({
-  args: {},
-  handler: async (ctx) => {
-    const jobs = await ctx.db.query("jobs").collect();
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    const jobs = await ctx.db
+      .query("jobs")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
     return jobs.sort((a, b) => b._creationTime - a._creationTime);
   },
 });
@@ -92,6 +100,7 @@ export const listAll = query({
 // Mutation to create a new job
 export const create = mutation({
   args: {
+    tenantId: v.id("tenants"),
     title: v.string(),
     slug: v.string(),
     location: v.string(),

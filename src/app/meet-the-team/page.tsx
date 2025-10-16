@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight, Mail, Linkedin } from "lucide-react"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 
 export default function MeetTheTeamPage() {
-  const teamMembers = useQuery(api.team.list)
+  const { tenantId } = useTenant()
+  const teamMembers = useQuery(api.team.list, { tenantId })
 
   return (
     <div className="flex flex-col">

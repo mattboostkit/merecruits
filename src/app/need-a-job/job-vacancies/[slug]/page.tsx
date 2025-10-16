@@ -10,17 +10,19 @@ import { ArrowLeft, Briefcase, MapPin, Clock, Calendar, Share2, Upload } from "l
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
 import { use, useState } from "react"
+import { useTenant } from "@/lib/tenant-context"
 
 type Props = {
   params: Promise<{ slug: string }>
 }
 
 export default function JobDetailPage({ params }: Props) {
+  const { tenantId } = useTenant()
   const { slug } = use(params)
-  const job = useQuery(api.jobs.getBySlug, { slug })
+  const job = useQuery(api.jobs.getBySlug, { tenantId, slug })
   const relatedJobs = useQuery(
     api.jobs.list,
-    job ? { category: job.category } : "skip"
+    job ? { tenantId, category: job.category } : "skip"
   )
   const [shareTooltip, setShareTooltip] = useState("Share this job")
 

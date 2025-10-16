@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_FILE_TYPES = [
@@ -38,6 +39,7 @@ type CVUploadFormData = z.infer<typeof cvUploadSchema>
 function UploadCVContent() {
   const searchParams = useSearchParams()
   const jobRef = searchParams.get("job_ref")
+  const { tenantId } = useTenant()
   const submitCV = useMutation(api.cvUploads.submit)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -144,6 +146,7 @@ function UploadCVContent() {
 
       // Step 3: Submit CV data with storage ID
       await submitCV({
+        tenantId,
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,

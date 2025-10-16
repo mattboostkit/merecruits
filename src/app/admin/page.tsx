@@ -7,13 +7,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Briefcase, FileText, Users, Mail, Newspaper } from "lucide-react"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 
 export default function AdminDashboard() {
+  const { tenantId } = useTenant()
+
   // Fetch real data from Convex
-  const allJobs = useQuery(api.jobs.listAll)
-  const cvSubmissions = useQuery(api.cvUploads.listAll)
-  const teamMembers = useQuery(api.team.list)
-  const contactSubmissions = useQuery(api.contact.listAll)
+  const allJobs = useQuery(api.jobs.listAll, { tenantId })
+  const cvSubmissions = useQuery(api.cvUploads.listAll, { tenantId })
+  const teamMembers = useQuery(api.team.list, { tenantId })
+  const contactSubmissions = useQuery(api.contact.listAll, { tenantId })
 
   // Calculate stats
   const activeJobsCount = allJobs?.filter(job => job.status === "ACTIVE").length ?? 0

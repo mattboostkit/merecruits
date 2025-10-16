@@ -4,6 +4,8 @@ import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ConvexClientProvider } from "./ConvexClientProvider";
+import { TenantWrapper } from "@/components/providers/tenant-wrapper";
+import { getTenant } from "@/lib/get-tenant";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -50,11 +52,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const tenant = await getTenant();
+
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "EmploymentAgency",
@@ -128,9 +132,11 @@ export default function RootLayout({
         className={`${dmSans.variable} ${fraunces.variable} antialiased font-sans min-h-screen flex flex-col`}
       >
         <ConvexClientProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <TenantWrapper tenant={tenant}>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </TenantWrapper>
         </ConvexClientProvider>
       </body>
     </html>

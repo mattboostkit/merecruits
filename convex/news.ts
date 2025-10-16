@@ -3,13 +3,13 @@ import { query, mutation } from "./_generated/server";
 
 // Get all published news articles
 export const list = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
     const articles = await ctx.db
       .query("newsArticles")
-      .withIndex("by_published", (q) => q.eq("published", true))
+      .withIndex("by_tenant_published", (q) => q.eq("tenantId", args.tenantId).eq("published", true))
       .collect();
-    
+
     return articles.sort((a, b) => {
       const aTime = a.publishedAt ?? a._creationTime;
       const bTime = b.publishedAt ?? b._creationTime;
@@ -20,11 +20,11 @@ export const list = query({
 
 // Get a single article by slug (with author details)
 export const getBySlug = query({
-  args: { slug: v.string() },
+  args: { tenantId: v.id("tenants"), slug: v.string() },
   handler: async (ctx, args) => {
     const article = await ctx.db
       .query("newsArticles")
-      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .withIndex("by_tenant_slug", (q) => q.eq("tenantId", args.tenantId).eq("slug", args.slug))
       .first();
 
     if (!article) return null;
@@ -44,11 +44,11 @@ export const getBySlug = query({
 
 // Get recent articles (excluding one)
 export const getRelated = query({
-  args: { excludeId: v.id("newsArticles"), limit: v.number() },
+  args: { tenantId: v.id("tenants"), excludeId: v.id("newsArticles"), limit: v.number() },
   handler: async (ctx, args) => {
     const articles = await ctx.db
       .query("newsArticles")
-      .withIndex("by_published", (q) => q.eq("published", true))
+      .withIndex("by_tenant_published", (q) => q.eq("tenantId", args.tenantId).eq("published", true))
       .collect();
 
     return articles
@@ -64,9 +64,12 @@ export const getRelated = query({
 
 // Get ALL articles (including drafts) - for admin use
 export const listAll = query({
-  args: {},
-  handler: async (ctx) => {
-    const articles = await ctx.db.query("newsArticles").collect();
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    const articles = await ctx.db
+      .query("newsArticles")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
     return articles.sort((a, b) => {
       const aTime = a.publishedAt ?? a._creationTime;
       const bTime = b.publishedAt ?? b._creationTime;
@@ -77,9 +80,13 @@ export const listAll = query({
 
 // Get a single article by ID (for editing)
 export const getById = query({
-  args: { id: v.id("newsArticles") },
+  args: { id: v.id("newsArticles"), tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
     const article = await ctx.db.get(args.id);
+    // Verify the article belongs to this tenant
+    if (article && article.tenantId !== args.tenantId) {
+      return null;
+    }
     return article;
   },
 });
@@ -87,6 +94,7 @@ export const getById = query({
 // Mutation to create a new article
 export const create = mutation({
   args: {
+    tenantId: v.id("tenants"),
     title: v.string(),
     slug: v.string(),
     excerpt: v.string(),

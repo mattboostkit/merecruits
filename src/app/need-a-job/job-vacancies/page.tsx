@@ -10,8 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRight, Briefcase, Search, User } from "lucide-react"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 
 export default function JobVacanciesPage() {
+  const { tenantId } = useTenant()
   const [searchTerm, setSearchTerm] = useState("")
   const [locationFilter, setLocationFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
@@ -19,6 +21,7 @@ export default function JobVacanciesPage() {
 
   // Fetch jobs from Convex with filters
   const jobs = useQuery(api.jobs.list, {
+    tenantId,
     search: searchTerm || undefined,
     location: locationFilter !== "all" ? locationFilter : undefined,
     type: typeFilter !== "all" ? typeFilter : undefined,

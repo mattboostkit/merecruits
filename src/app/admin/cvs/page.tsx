@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,8 +13,9 @@ import { ArrowLeft, Search, Download, Mail, Phone, ExternalLink } from "lucide-r
 import { format } from "date-fns"
 
 export default function AdminCVsPage() {
+  const { tenantId } = useTenant()
   const [searchTerm, setSearchTerm] = useState("")
-  const cvSubmissions = useQuery(api.cvUploads.listAll)
+  const cvSubmissions = useQuery(api.cvUploads.listAll, { tenantId })
 
   const filteredCVs = cvSubmissions?.filter((cv) =>
     `${cv.firstName} ${cv.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||

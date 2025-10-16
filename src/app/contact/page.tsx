@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -26,6 +27,7 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>
 
 export default function ContactPage() {
+  const { tenantId } = useTenant()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const submitContact = useMutation(api.contact.submit)
@@ -45,6 +47,7 @@ export default function ContactPage() {
 
     try {
       await submitContact({
+        tenantId,
         name: data.name,
         email: data.email,
         phone: data.phone,

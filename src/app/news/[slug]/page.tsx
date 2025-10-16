@@ -12,6 +12,7 @@ import { api } from "convex/_generated/api"
 import { use } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { useTenant } from "@/lib/tenant-context"
 
 interface NewsArticlePageProps {
   params: Promise<{
@@ -21,10 +22,11 @@ interface NewsArticlePageProps {
 
 export default function NewsArticlePage({ params }: NewsArticlePageProps) {
   const { slug } = use(params)
-  const article = useQuery(api.news.getBySlug, { slug })
+  const { tenantId } = useTenant()
+  const article = useQuery(api.news.getBySlug, { slug, tenantId })
   const relatedArticles = useQuery(
     api.news.getRelated,
-    article ? { excludeId: article._id, limit: 3 } : "skip"
+    article ? { excludeId: article._id, limit: 3, tenantId } : "skip"
   )
 
   if (article === undefined) {

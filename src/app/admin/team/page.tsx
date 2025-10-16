@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -18,8 +19,9 @@ import {
 import { ArrowLeft, Search } from "lucide-react"
 
 export default function AdminTeamPage() {
+  const { tenantId } = useTenant()
   const [searchTerm, setSearchTerm] = useState("")
-  const teamMembers = useQuery(api.team.list)
+  const teamMembers = useQuery(api.team.list, { tenantId })
 
   const filteredTeamMembers = teamMembers?.filter((member) =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Id } from "convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,13 +16,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Save } from "lucide-react"
 
 export default function EditJobPage() {
+  const { tenantId } = useTenant()
   const router = useRouter()
   const params = useParams()
   const jobId = params.id as Id<"jobs">
 
   const updateJob = useMutation(api.jobs.update)
-  const job = useQuery(api.jobs.getById, { id: jobId })
-  const teamMembers = useQuery(api.team.list)
+  const job = useQuery(api.jobs.getById, { id: jobId, tenantId })
+  const teamMembers = useQuery(api.team.list, { tenantId })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({

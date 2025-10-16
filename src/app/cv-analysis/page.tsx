@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useAction, useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,6 +14,8 @@ import { Sparkles, FileText, Target, Lightbulb, CheckCircle2, AlertCircle } from
 import ReactMarkdown from "react-markdown"
 
 export default function CVAnalysisPage() {
+  const { tenantId } = useTenant()
+
   const [cvFile, setCvFile] = useState<File | null>(null)
   const [cvText, setCvText] = useState("")
   const [selectedJobId, setSelectedJobId] = useState<string>("")
@@ -28,7 +31,7 @@ export default function CVAnalysisPage() {
   const [score, setScore] = useState<number | null>(null)
   const [scoreFeedback, setScoreFeedback] = useState<string | null>(null)
 
-  const jobs = useQuery(api.jobs.list, {})
+  const jobs = useQuery(api.jobs.list, { tenantId })
   const analyzeCVForJob = useAction(api.cvAnalysis.analyzeCVForJob)
   const generateImprovedCV = useAction(api.cvAnalysis.generateImprovedCV)
   const scoreCVQuick = useAction(api.cvAnalysis.scoreCVQuick)

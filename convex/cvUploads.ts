@@ -18,6 +18,7 @@ export const getFileUrl = query({
 // Submit a CV upload with file storage
 export const submit = mutation({
   args: {
+    tenantId: v.id("tenants"),
     firstName: v.string(),
     lastName: v.string(),
     email: v.string(),
@@ -42,6 +43,7 @@ export const submit = mutation({
     const fileUrl = await ctx.storage.getUrl(args.storageId);
 
     const cvUploadId = await ctx.db.insert("cvUploads", {
+      tenantId: args.tenantId,
       firstName: args.firstName,
       lastName: args.lastName,
       email: args.email,
@@ -134,9 +136,12 @@ export const sendNotifications = internalAction({
 
 // Query to list all CV uploads - for admin use
 export const listAll = query({
-  args: {},
-  handler: async (ctx) => {
-    const cvUploads = await ctx.db.query("cvUploads").collect();
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    const cvUploads = await ctx.db
+      .query("cvUploads")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
 
     // Enrich with job details if jobId exists
     const enrichedUploads = await Promise.all(
@@ -159,11 +164,11 @@ export const listAll = query({
 
 // Query to get CV uploads by email
 export const getByEmail = query({
-  args: { email: v.string() },
+  args: { tenantId: v.id("tenants"), email: v.string() },
   handler: async (ctx, args) => {
     const cvUploads = await ctx.db
       .query("cvUploads")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .withIndex("by_tenant_email", (q) => q.eq("tenantId", args.tenantId).eq("email", args.email))
       .collect();
     return cvUploads.sort((a, b) => b._creationTime - a._creationTime);
   },
@@ -171,12 +176,14 @@ export const getByEmail = query({
 
 // Query to get CV uploads for a specific job
 export const getByJob = query({
-  args: { jobId: v.id("jobs") },
+  args: { tenantId: v.id("tenants"), jobId: v.id("jobs") },
   handler: async (ctx, args) => {
     const cvUploads = await ctx.db
       .query("cvUploads")
       .withIndex("by_job", (q) => q.eq("jobId", args.jobId))
       .collect();
-    return cvUploads.sort((a, b) => b._creationTime - a._creationTime);
+    // Filter by tenant for additional security
+    const tenantCvUploads = cvUploads.filter((cv) => cv.tenantId === args.tenantId);
+    return tenantCvUploads.sort((a, b) => b._creationTime - a._creationTime);
   },
 });

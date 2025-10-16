@@ -8,9 +8,11 @@ import { ArrowRight, Calendar } from "lucide-react"
 import { format } from "date-fns"
 import { useQuery } from "convex/react"
 import { api } from "convex/_generated/api"
+import { useTenant } from "@/lib/tenant-context"
 
 export default function NewsPage() {
-  const articles = useQuery(api.news.list)
+  const { tenantId } = useTenant()
+  const articles = useQuery(api.news.list, { tenantId })
 
   const featuredArticle = articles?.[0]
   const regularArticles = articles?.slice(1) || []
