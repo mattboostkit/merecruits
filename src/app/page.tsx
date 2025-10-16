@@ -15,6 +15,7 @@ export default function HomePage() {
   const { tenantId, branding, name } = tenant
   const featuredJobs = useQuery(api.jobs.getFeatured, { tenantId })
   const latestNews = useQuery(api.news.list, { tenantId })
+  const consultants = useQuery(api.team.list, { tenantId })
   const heroImage =
     branding.heroImage ??
     "https://ik.imagekit.io/boostkit/ME%20Recruits/home-hero.webp?updatedAt=1760513529464"
@@ -55,17 +56,38 @@ export default function HomePage() {
               {heroDescription}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
-              <Button asChild size="lg" variant="secondary" className="text-lg shadow-xl hover:shadow-2xl transition-all">
+              <Button
+                asChild
+                size="lg"
+                className="text-lg shadow-lg hover:shadow-xl transition-all bg-white text-primary hover:bg-white/90"
+              >
                 <Link href="/need-a-job/job-vacancies">
                   <Briefcase className="mr-2 h-5 w-5" />
-                  Find Your Perfect Job
+                  Browse Live Vacancies
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="text-lg bg-white/10 hover:bg-white/20 border-white/30 text-white backdrop-blur-sm">
+              <Button
+                asChild
+                size="lg"
+                variant="secondary"
+                className="text-lg bg-secondary/80 hover:bg-secondary text-secondary-foreground shadow-lg hover:shadow-xl transition-all"
+              >
+                <Link href="/upload-cv">
+                  <FileText className="mr-2 h-5 w-5" />
+                  Upload Your CV
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="text-lg bg-white/10 hover:bg-white/20 border-white/40 text-white backdrop-blur-sm"
+              >
                 <Link href="/need-staff">
                   <Users className="mr-2 h-5 w-5" />
-                  Hire Talented Staff
+                  Find Exceptional Talent
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -82,28 +104,28 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 text-primary mb-4 shadow-lg">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-primary/10 text-primary mb-4 shadow-lg transition-transform duration-300 hover:-translate-y-1">
                 <Award className="h-10 w-10" />
               </div>
               <div className="text-4xl font-display font-bold text-foreground mb-2">25+</div>
               <div className="text-sm text-muted-foreground font-medium">Years Experience</div>
             </div>
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-accent/10 text-accent mb-4 shadow-lg">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-accent/10 text-accent mb-4 shadow-lg transition-transform duration-300 hover:-translate-y-1">
                 <Star className="h-10 w-10 fill-current" />
               </div>
               <div className="text-4xl font-display font-bold text-foreground mb-2">145+</div>
               <div className="text-sm text-muted-foreground font-medium">Five-Star Reviews</div>
             </div>
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 text-primary mb-4 shadow-lg">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-primary/10 text-primary mb-4 shadow-lg transition-transform duration-300 hover:-translate-y-1">
                 <TrendingUp className="h-10 w-10" />
               </div>
               <div className="text-4xl font-display font-bold text-foreground mb-2">360°</div>
               <div className="text-sm text-muted-foreground font-medium">Recruitment Service</div>
             </div>
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-accent/10 text-accent mb-4 shadow-lg">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-accent/10 text-accent mb-4 shadow-lg transition-transform duration-300 hover:-translate-y-1">
                 <CheckCircle2 className="h-10 w-10" />
               </div>
               <div className="text-4xl font-display font-bold text-foreground mb-2">100%</div>
@@ -112,6 +134,88 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Consultant Spotlight */}
+      {consultants && consultants.length > 0 && (
+        <section className="py-20 bg-slate-50">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+                <div>
+                  <Badge variant="outline" className="mb-3">
+                    Meet the team
+                  </Badge>
+                  <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
+                    Trusted consultants connecting people &amp; purpose
+                  </h2>
+                  <p className="text-base md:text-lg text-muted-foreground mt-3 max-w-2xl">
+                    Our specialist consultants live and breathe Kent’s ME postcode market.
+                    Get to know the experts who will champion your next hire or career move.
+                  </p>
+                </div>
+                <Button asChild variant="outline" className="self-start md:self-auto">
+                  <Link href="/meet-the-team">
+                    View full team
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {consultants.slice(0, 3).map((consultant) => (
+                  <Card key={consultant._id} className="group border border-border/60 hover:border-primary/40 transition-colors duration-300 shadow-sm hover:shadow-lg">
+                    <CardHeader className="flex flex-row items-start gap-4">
+                      <div className="relative w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold uppercase">
+                        {consultant.name
+                          .split(" ")
+                          .map((part) => part[0])
+                          .join("")}
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl">{consultant.name}</CardTitle>
+                        <CardDescription className="text-sm font-medium text-muted-foreground/90">
+                          {consultant.role}
+                        </CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground line-clamp-4 mb-4">
+                        {consultant.bio}
+                      </p>
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-primary/30 px-3 py-1">
+                          <Sparkles className="h-3 w-3 text-primary" />
+                          Specialist
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-primary/30 px-3 py-1">
+                          <MapPin className="h-3 w-3 text-primary" />
+                          Kent &amp; ME Postcode
+                        </span>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex items-center justify-between pt-0">
+                      <Button asChild variant="ghost" size="sm" className="text-primary font-semibold">
+                        <Link href={`/meet-the-team#${consultant._id}`}>
+                          Contact {consultant.name.split(" ")[0]}
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        size="sm"
+                        className="bg-secondary/90 hover:bg-secondary text-secondary-foreground"
+                      >
+                        <Link href="/upload-cv">
+                          Share your CV
+                        </Link>
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* AI CV Analyzer CTA */}
       <section className="py-20 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground relative overflow-hidden">
