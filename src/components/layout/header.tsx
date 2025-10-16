@@ -5,9 +5,12 @@ import Image from "next/image"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X, Phone, Mail } from "lucide-react"
+import { useTenant } from "@/lib/tenant-context"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const tenant = useTenant()
+  const { branding, contact, name } = tenant
 
   const navigation = [
     { name: "About Us", href: "/about-us" },
@@ -34,17 +37,17 @@ export function Header() {
         <div className="container mx-auto px-4 py-2">
           <div className="flex flex-wrap items-center justify-between text-sm">
             <div className="flex items-center gap-4">
-              <a href="tel:01732497979" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <a href={`tel:${contact.phone}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <Phone className="h-4 w-4" />
-                <span>01732 497979</span>
+                <span>{contact.phone}</span>
               </a>
-              <a href="mailto:info@merecruits.com" className="hidden sm:flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <a href={`mailto:${contact.email}`} className="hidden sm:flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <Mail className="h-4 w-4" />
-                <span>info@merecruits.com</span>
+                <span>{contact.email}</span>
               </a>
             </div>
             <div className="text-xs">
-              <span>Serving Kent: Maidstone, Medway, Tunbridge Wells & surrounding areas</span>
+              <span>{branding.tagline ?? `Trusted recruitment partners for ambitious teams.`}</span>
             </div>
           </div>
         </div>
@@ -56,11 +59,12 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
-              src="https://ik.imagekit.io/boostkit/ME%20Recruits/logo-white-bg.webp?updatedAt=1760513596543"
-              alt="ME Recruits"
+              src={branding.logo}
+              alt={`${name} logo`}
               width={240}
               height={80}
               className="h-16 w-auto"
+              unoptimized
               priority
             />
           </Link>

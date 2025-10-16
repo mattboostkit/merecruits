@@ -1,22 +1,13 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { Id } from "../../convex/_generated/dataModel";
+import type { TenantInfo } from "./get-tenant";
 
-interface TenantContextType {
-  tenantId: Id<"tenants">;
-  subdomain: string;
-  name: string;
-  logo: string;
-  primaryColor: string;
-  secondaryColor: string;
-}
-
-const TenantContext = createContext<TenantContextType | undefined>(undefined);
+const TenantContext = createContext<TenantInfo | undefined>(undefined);
 
 interface TenantProviderProps {
   children: ReactNode;
-  tenant: TenantContextType;
+  tenant: TenantInfo;
 }
 
 export function TenantProvider({ children, tenant }: TenantProviderProps) {

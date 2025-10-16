@@ -13,6 +13,15 @@ export default defineSchema({
     logo: v.string(), // URL to logo image
     primaryColor: v.string(), // "#7e2634"
     secondaryColor: v.string(), // "#f5f5f5"
+    accentColor: v.optional(v.string()), // Additional accent highlight
+    primaryForegroundColor: v.optional(v.string()), // Text color over primary backgrounds
+    secondaryForegroundColor: v.optional(v.string()), // Text color over secondary backgrounds
+    heroImage: v.optional(v.string()), // Landing page hero background
+    seoImage: v.optional(v.string()), // Default social share image
+    favicon: v.optional(v.string()), // Favicon URL
+    tagline: v.optional(v.string()), // Short strapline for SEO/hero
+    poweredByLink: v.optional(v.string()), // Custom "Powered by" link
+    poweredByText: v.optional(v.string()), // Custom attribution copy
 
     // Contact Information
     companyEmail: v.string(),

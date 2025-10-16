@@ -19,38 +19,68 @@ const fraunces = Fraunces({
   weight: ["600", "700", "800"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "ME Recruits | Recruitment Agency in Kent | Maidstone, Medway & Tunbridge Wells",
-    template: "%s | ME Recruits",
-  },
-  description:
-    "Leading recruitment agency in Kent specialising in permanent and temporary office-based staff. Serving Maidstone, Medway, Tunbridge Wells and surrounding ME postcode areas.",
-  keywords: [
-    "recruitment agency",
-    "Kent jobs",
-    "Maidstone recruitment",
-    "Medway jobs",
-    "Tunbridge Wells recruitment",
-    "temporary staff",
-    "permanent jobs",
-    "office jobs Kent",
-  ],
-  authors: [{ name: "ME Recruits" }],
-  openGraph: {
-    type: "website",
-    locale: "en_GB",
-    url: "https://www.merecruits.com",
-    siteName: "ME Recruits",
-    title: "ME Recruits | Recruitment Agency in Kent",
-    description:
-      "Leading recruitment agency in Kent specialising in permanent and temporary office-based staff.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@merecruits",
-  },
+const DEFAULT_NAME = "ME Recruits";
+const DEFAULT_URL = "https://www.merecruits.com";
+const DEFAULT_DESCRIPTION =
+  "Leading recruitment agency specialising in permanent and temporary office-based staff across the South East.";
+const DEFAULT_TAGLINE = "Recruitment specialists connected by HireKit.";
+const DEFAULT_SEO_IMAGE = "https://www.merecruits.com/social-share.png";
+
+const deriveUrl = (params: { customDomain?: string; subdomain?: string }) => {
+  if (params.customDomain) {
+    return `https://${params.customDomain}`;
+  }
+  if (params.subdomain) {
+    return `https://${params.subdomain}.hirekit.app`;
+  }
+  return DEFAULT_URL;
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await getTenant();
+  const name = tenant?.name ?? DEFAULT_NAME;
+  const description =
+    tenant?.meta.description ?? tenant?.aboutUs ?? DEFAULT_DESCRIPTION;
+  const canonicalUrl = deriveUrl({
+    customDomain: tenant?.customDomain,
+    subdomain: tenant?.subdomain,
+  });
+  const seoImage = tenant?.branding.seoImage ?? DEFAULT_SEO_IMAGE;
+  const tagline = tenant?.branding.tagline ?? DEFAULT_TAGLINE;
+
+  return {
+    title: {
+      default: `${name} | ${tagline}`,
+      template: `%s | ${name}`,
+    },
+    description,
+    openGraph: {
+      type: "website",
+      locale: "en_GB",
+      url: canonicalUrl,
+      siteName: name,
+      title: `${name} | ${tagline}`,
+      description,
+      images: seoImage ? [seoImage] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@hirekitapp",
+      title: `${name} | ${tagline}`,
+      description,
+      images: seoImage ? [seoImage] : undefined,
+    },
+    icons: tenant?.branding.favicon
+      ? {
+          icon: [
+            {
+              url: tenant.branding.favicon,
+            },
+          ],
+        }
+      : undefined,
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -59,69 +89,44 @@ export default async function RootLayout({
 }>) {
   const tenant = await getTenant();
 
+  const canonicalUrl = deriveUrl({
+    customDomain: tenant?.customDomain,
+    subdomain: tenant?.subdomain,
+  });
+
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "EmploymentAgency",
-    "name": "ME Recruits",
-    "alternateName": "TN Recruits Limited",
-    "url": "https://www.merecruits.com",
-    "logo": "https://www.merecruits.com/logo.png",
-    "description": "Over 25 years of recruitment expertise in the ME postcode area. Sister company to award-winning TN Recruits, connecting people, purpose and potential.",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Suite 166, 80 Churchill Square Business Centre, Kings Hill",
-      "addressLocality": "West Malling",
-      "addressRegion": "Kent",
-      "postalCode": "ME19 4YU",
-      "addressCountry": "GB"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 51.2732659,
-      "longitude": 0.3959542
-    },
-    "telephone": "+44-1732-497979",
-    "email": "info@merecruits.com",
-    "sameAs": [
-      "https://www.facebook.com/merecruits",
-      "https://twitter.com/merecruits",
-      "https://www.linkedin.com/company/me-recruits",
-      "https://www.instagram.com/merecruits"
-    ],
-    "areaServed": {
-      "@type": "GeoCircle",
-      "geoMidpoint": {
-        "@type": "GeoCoordinates",
-        "latitude": 51.2732659,
-        "longitude": 0.3959542
-      },
-      "geoRadius": "30000"
-    },
-    "knowsAbout": [
-      "Recruitment",
-      "Employment Services",
-      "Financial Services Recruitment",
-      "Legal Recruitment",
-      "Accountancy Recruitment",
-      "Marketing Recruitment",
-      "IT Recruitment"
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "5",
-      "reviewCount": "145",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "foundingDate": "1999",
-    "memberOf": {
-      "@type": "Organization",
-      "name": "Recruitment & Employment Confederation (REC)"
-    }
+    name: tenant?.name ?? DEFAULT_NAME,
+    url: canonicalUrl,
+    logo: tenant?.branding.logo ?? "https://www.merecruits.com/logo.png",
+    description:
+      tenant?.aboutUs ??
+      tenant?.meta.description ??
+      DEFAULT_DESCRIPTION,
+    telephone: tenant?.contact.phone ?? "+44-1732-497979",
+    email: tenant?.contact.email ?? "info@merecruits.com",
+    sameAs: [
+      tenant?.contact.facebookUrl,
+      tenant?.contact.twitterUrl,
+      tenant?.contact.linkedInUrl,
+      tenant?.contact.instagramUrl,
+    ].filter((url): url is string => Boolean(url)),
+    address: tenant?.contact.address
+      ? {
+          "@type": "PostalAddress",
+          streetAddress: tenant.contact.address,
+        }
+      : undefined,
+    tagline: tenant?.branding.tagline ?? DEFAULT_TAGLINE,
   };
 
   return (
-    <html lang="en-GB">
+    <html
+      lang="en-GB"
+      data-tenant={tenant?.subdomain ?? "hirekit"}
+      data-platform="hirekit"
+    >
       <head>
         <script
           type="application/ld+json"

@@ -11,38 +11,45 @@ import { api } from "convex/_generated/api"
 import { useTenant } from "@/lib/tenant-context"
 
 export default function HomePage() {
-  const { tenantId } = useTenant()
+  const tenant = useTenant()
+  const { tenantId, branding, name } = tenant
   const featuredJobs = useQuery(api.jobs.getFeatured, { tenantId })
   const latestNews = useQuery(api.news.list, { tenantId })
+  const heroImage =
+    branding.heroImage ??
+    "https://ik.imagekit.io/boostkit/ME%20Recruits/home-hero.webp?updatedAt=1760513529464"
+  const heroBadge = branding.tagline ?? `${name} | Recruitment powered by HireKit`
 
   return (
     <div className="flex flex-col">
       {/* Hero Section - Modern with Image */}
       <section className="relative bg-gradient-to-br from-primary via-primary/95 to-accent text-primary-foreground py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="https://ik.imagekit.io/boostkit/ME%20Recruits/home-hero.webp?updatedAt=1760513529464"
-            alt="ME Recruits - Professional recruitment team"
-            fill
-            className="object-cover"
-            priority
-            quality={90}
-          />
-        </div>
+        {heroImage && (
+          <div className="absolute inset-0">
+            <Image
+              src={heroImage}
+              alt={`${name} hero`}
+              fill
+              className="object-cover"
+              priority
+              unoptimized
+            />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/80 to-accent/85" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6 bg-white/20 text-white border-white/30 backdrop-blur-sm">
               <Star className="h-3 w-3 mr-1 fill-current" />
-              145+ Five-Star Google Reviews
+              {heroBadge}
             </Badge>
             <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              Connecting People,<br />
-              <span className="text-secondary">Purpose &amp; Potential</span>
+              Building Remarkable Teams<br />
+              <span className="text-secondary">With {name}</span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-foreground/90 leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150">
-              Over 25 years of expert recruitment across Kent&apos;s ME postcode area. We&apos;re not just recruiters — we&apos;re your partners in growth.
+              {branding.tagline ?? "We pair high-performing talent with forward-thinking employers—backed by HireKit's intelligent recruitment platform."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
               <Button asChild size="lg" variant="secondary" className="text-lg shadow-xl hover:shadow-2xl transition-all">
