@@ -60,21 +60,32 @@ export async function getTenant(): Promise<TenantInfo | null> {
 
   // Default to ME Recruits for development if no headers are present
   const fallbackSubdomain = "merecruits";
+  const inferredSubdomain =
+    subdomainHeader ??
+    (customDomain && customDomain.includes(".")
+      ? customDomain.split(".")[0]
+      : undefined);
 
   try {
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL!;
 
-    const tenant = customDomain
-      ? await fetchQuery(
-          api.tenants.getByDomain,
-          { domain: customDomain },
-          { url: convexUrl }
-        )
-      : await fetchQuery(
-          api.tenants.getBySubdomain,
-          { subdomain: subdomainHeader || fallbackSubdomain },
-          { url: convexUrl }
-        );
+    let tenant = null;
+
+    if (customDomain) {
+      tenant = await fetchQuery(
+        api.tenants.getByDomain,
+        { domain: customDomain },
+        { url: convexUrl }
+      );
+    }
+
+    if (!tenant) {
+      tenant = await fetchQuery(
+        api.tenants.getBySubdomain,
+        { subdomain: inferredSubdomain || fallbackSubdomain },
+        { url: convexUrl }
+      );
+    }
 
     if (!tenant) {
       const attempted = customDomain || subdomainHeader || fallbackSubdomain;
