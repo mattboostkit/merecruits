@@ -11,6 +11,8 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const tenant = useTenant()
   const { branding, contact, name } = tenant
+  const defaultLogo = "https://ik.imagekit.io/boostkit/ME%20Recruits/logo-white-bg.webp?updatedAt=1760513596543"
+  const logoSrc = branding.logo || defaultLogo
 
   const navigation = [
     { name: "About Us", href: "/about-us" },
@@ -59,7 +61,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
-              src={branding.logo}
+              src={logoSrc}
               alt={`${name} logo`}
               width={240}
               height={80}
