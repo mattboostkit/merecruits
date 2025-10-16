@@ -22,8 +22,8 @@ const fraunces = Fraunces({
 const DEFAULT_NAME = "ME Recruits";
 const DEFAULT_URL = "https://www.merecruits.com";
 const DEFAULT_DESCRIPTION =
-  "Leading recruitment agency specialising in permanent and temporary office-based staff across the South East.";
-const DEFAULT_TAGLINE = "Recruitment specialists connected by HireKit.";
+  "Leading recruitment agency specialising in permanent and temporary office-based staff across Kent and the wider South East.";
+const DEFAULT_TAGLINE = "Connecting people, purpose and potential across Kent.";
 const DEFAULT_SEO_IMAGE = "https://www.merecruits.com/social-share.png";
 
 const deriveUrl = (params: { customDomain?: string; subdomain?: string }) => {

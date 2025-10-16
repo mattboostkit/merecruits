@@ -9,12 +9,7 @@ import { useTenant } from "@/lib/tenant-context"
 export function Footer() {
   const currentYear = new Date().getFullYear()
   const tenant = useTenant()
-  const {
-    name,
-    branding,
-    contact,
-    settings,
-  } = tenant
+  const { name, branding, contact, settings } = tenant
 
   const socials = [
     { icon: Facebook, url: contact.facebookUrl, label: "Facebook" },
@@ -22,6 +17,17 @@ export function Footer() {
     { icon: Linkedin, url: contact.linkedInUrl, label: "LinkedIn" },
     { icon: Instagram, url: contact.instagramUrl, label: "Instagram" },
   ].filter((item) => item.url)
+  const shouldShowPoweredBy =
+    settings.showPoweredBy &&
+    (branding.poweredByLink || branding.poweredByText)
+  let poweredByHost: string | null = null
+  if (branding.poweredByLink) {
+    try {
+      poweredByHost = new URL(branding.poweredByLink).hostname
+    } catch {
+      poweredByHost = branding.poweredByLink
+    }
+  }
 
   return (
     <footer className="bg-slate-50 border-t border-border mt-auto">
@@ -168,22 +174,24 @@ export function Footer() {
           </div>
         </div>
 
-        {settings.showPoweredBy && (
+        {shouldShowPoweredBy && (
           <div className="mt-6 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-primary">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
               <span className="font-medium">
-                {branding.poweredByText ?? "Powered by HireKit"}
+                {branding.poweredByText ?? "Powered by our recruitment technology"}
               </span>
             </div>
-            <a
-              href={branding.poweredByLink ?? "https://hirekit.app"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-semibold underline-offset-4 hover:underline"
-            >
-              hirekit.app
-            </a>
+            {poweredByHost && branding.poweredByLink && (
+              <a
+                href={branding.poweredByLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold underline-offset-4 hover:underline"
+              >
+                {poweredByHost}
+              </a>
+            )}
           </div>
         )}
       </div>

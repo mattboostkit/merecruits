@@ -18,7 +18,7 @@ export default function HomePage() {
   const heroImage =
     branding.heroImage ??
     "https://ik.imagekit.io/boostkit/ME%20Recruits/home-hero.webp?updatedAt=1760513529464"
-  const heroBadge = branding.tagline ?? `${name} | Recruitment powered by HireKit`
+  const heroBadge = branding.tagline ?? "145+ Five-Star Google Reviews"
 
   return (
     <div className="flex flex-col">
@@ -45,11 +45,11 @@ export default function HomePage() {
               {heroBadge}
             </Badge>
             <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              Building Remarkable Teams<br />
-              <span className="text-secondary">With {name}</span>
+              Connecting People,<br />
+              <span className="text-secondary">Purpose &amp; Potential</span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-foreground/90 leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150">
-              {branding.tagline ?? "We pair high-performing talent with forward-thinking employers—backed by HireKit's intelligent recruitment platform."}
+              Over 25 years of expert recruitment across Kent&apos;s ME postcode area. We&apos;re not just recruiters - we&apos;re your partners in growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
               <Button asChild size="lg" variant="secondary" className="text-lg shadow-xl hover:shadow-2xl transition-all">

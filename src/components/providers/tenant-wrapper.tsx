@@ -65,7 +65,7 @@ export function TenantWrapper({ children, tenant }: TenantWrapperProps) {
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold">Tenant Not Found</h1>
           <p className="text-gray-600 max-w-md">
-            This subdomain is not configured yet. Please contact the HireKit team
+            This subdomain is not configured yet. Please contact your platform administrator
             to finish onboarding.
           </p>
         </div>
